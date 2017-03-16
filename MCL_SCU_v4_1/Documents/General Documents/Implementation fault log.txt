@@ -1,0 +1,59 @@
+
+
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_SVF= RESET;				/* Spray valve fault error*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_GPVF= RESET;			/* Gun Position valve fault error*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_ABVF= RESET;			/* AB valve fault error*/		
+	Fault_Log.stFault_Log_Flag.bFault_Log_FVF= RESET;				/* Flush valve fault error*/
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_MFVF= RESET;			/* Motor Forward valve fault warning*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_MBVF= RESET;			/* Motor Backward valve fault warning */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_STVF= RESET;			/* Stall valve fault error */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_IBLTF= RESET;			/* Inline Base temperature low threshold fault warning change35 */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_IBHTF= RESET;			/* Inline Base temperature High threshold fault change35 */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_IHLTF= RESET;			/* Inline Hard temperature low threshold fault  warning change35*/	
+	
+	Fault_Log.stFault_Log_Flag.bFault_Log_IHHTF= RESET;			/* Inline Hard temperature high threshold fault change35*/	
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_ALTF= RESET;			/* Antifreeze temperature low threshold fault warning change35 */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_AHTF= RESET;			/* Antifreeze temperature high threshold fault change35 */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_BRLLTHF= RESET;		/* Base Return Line temperature low threshold fault  warning change35 */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_BRLHTHF= RESET;		/* Base Return Line temperature high threshold fault change35 */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_PG1LTF= RESET;		/* Pressure Gauge1 Low threshold fault warning change35 */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_PG1HTF= RESET;		/* Pressure Gauge1 high threshold fault change35 */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_PG2LTF= RESET;		/* Pressure Gauge2 Low threshold fault  warning change35*/
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_PG2HTF= RESET;		/* Pressure Gauge2 high threshold fault change35*/
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_PG3LTF= RESET;		/* Pressure Gauge3 Low threshold fault  warning change35*/
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_PG3HTF= RESET;		/* Pressure Gauge3 high threshold fault change35*/
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_LLBLTF= RESET;		/* Base Liquid low Level threshold fault warning change35*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_LLBHTF= RESET;		/* Base Liquid high Level threshold fault warning change35*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_LLHLTF= RESET;		/* Hard Liquid low Level threshold fault warning change35*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_LLHHTF= RESET;		/* Hard Liquid high Level threshold fault warning change35*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_PTF= RESET;				/* Non-Contact Pipe temperature out of range fault warning */		
+	Fault_Log.stFault_Log_Flag.bFault_Log_IBHF= RESET;			/* Inline Base Heater fault warning */
+	Fault_Log.stFault_Log_Flag.bFault_Log_IHHF= RESET;			/* Inline Hard Heater fault warning */
+	Fault_Log.stFault_Log_Flag.bFault_Log_AHF= RESET;				/* Antifreeze Heater fault warning*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_HHF= RESET;				/* Hardener Heater fault warning*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_SGMF= RESET;			/* Spray Gun Motion fault warning */
+
+	Fault_Log.stFault_Log_Flag.bFault_Log_LTF= RESET;				/* Linear Transducer fault error */
+	Fault_Log.stFault_Log_Flag.bFault_Log_DCLSTF= RESET;		/* DCLS time fault error */
+	Fault_Log.stFault_Log_Flag.bFault_Log_HLSTF= RESET;			/* HLS time fault error */
+	Fault_Log.stFault_Log_Flag.bFault_Log_HMIHAF= RESET;	/* HMI heartbeat ack fault error*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_OPMMHAF= RESET;		/* OPMM heartbeat ack fault  error*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_VCMHAF= RESET;		/* VCM heartbeat ack fault error*/
+	Fault_Log.stFault_Log_Flag.bFault_Log_HCMHAF= RESET;		/* HCM heartbeat ack fault error */
