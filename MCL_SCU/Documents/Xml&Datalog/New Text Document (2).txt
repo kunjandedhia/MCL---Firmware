@@ -1,0 +1,76 @@
+<CRC-Evans_MCL><Ext_ID>2</Ext_ID><DLD>3</DLD><Data>100</Data></CRC-Evans_MCL>
+<CRC-Evans_MCL>
+<Command>Get_Status_Log</Command>
+</CRC-Evans_MCL>#
+<CRC-Evans_MCL>
+<Command>Get_Diagnostic_Log</Command>
+</CRC-Evans_MCL>#
+
+<CRC-Evans_MCL>
+<Command>Get_Fault_Log</Command>
+</CRC-Evans_MCL>#
+
+<CRC-Evans_MCL>
+<Command>Get_Periodic_Log</Command>
+</CRC-Evans_MCL>#
+<CRC-Evans_MCL>
+<Command>Reset_Log</Command>
+</CRC-Evans_MCL>
+<CRC-Evans_MCL>
+HMI
+</CRC-Evans_MCL>+
+
+<CRC-Evans_MCL>
+<Command>Get_CAN_Config_Parameters</Command>
+</CRC-Evans_MCL>
+<CRC-Evans_MCL>
+<Command>Get_Config_Parameters</Command>
+</CRC-Evans_MCL>
+<CRC-Evans_MCL><Ext_ID>04e80201</Ext_ID><DLC>1</DLC><Data>0000000000000001</Data></CRC-Evans_MCL>
+<CRC-Evans_MCL><Config>Wifi</Config><SSID>MCL_Phase_II_01</SSID><Password>12345678</Password></CRC-Evans_MCL>
+<CRC-Evans_MCL><Config>Wifi</Config><IP>192.168.1.100</IP><Subnet>255.255.255.0</Subnet><Gateway>192.168.1.1</Gateway><Port>992</Port></CRC-Evans_MCL>
+<CRC-Evans_MCL><Config>Ethernet</Config><IP>192.168.1.100</IP><Subnet>255.255.255.0</Subnet><Gateway>192.168.1.1</Gateway><Port>992</Port></CRC-Evans_MCL>
+
+
+<CRC-Evans_MCL><Config>Ethernet</Config><IP>255.255.255.0</IP></CRC-Evans_MCL>
+
+
+
+
+
+
+
+
+
+
+153fe20cff101b07
+
+
+
+SMS for Alarm User Select
+# ADMIN1 55 61 2 1 127 31 0 0 $
+# ADMIN1 55 61 2 2 127 31 0 0 $
+# ADMIN1 55 61 2 3 127 31 0 0 $
+# ADMIN1 55 61 2 4 127 31 0 0 $
+# ADMIN1 55 61 2 5 127 31 0 0 $
+# ADMIN1 5 61 2 6 0 0 0 0 $
+# ADMIN1 5 61 2 7 0 0 0 0 $
+# ADMIN1 5 61 2 8 0 0 0 0 $
+# ADMIN1 5 61 2 9 0 0 0 0 $
+# ADMIN1 5 61 2 10 0 0 0 0 $
+# ADMIN1 55 61 2 5 255 $
+
+set mobile number
+
+# ADMIN1 55 60 2 2 000 $
+# ADMIN1 55 60 2 2 255 $
+
+# ADMIN1 5 36 2 21 10 2015 12 01 40 $
+# ADMIN1 5 12 1 $
+
+
+# ADMIN1 5 32 2 1 1 $
+# ADMIN1 5 32 2 2 1 $
+# ADMIN1 5 32 2 3 1 $
+# ADMIN1 5 32 2 4 1 $
+# ADMIN1 5 32 2 4 255 $

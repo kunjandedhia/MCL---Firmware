@@ -1,0 +1,583 @@
+/******************************************************************************
+  **@file     :    Data_Logging.h
+  * 
+  * @brief   	:		 MACROS, Variables and Functions used for Data logging
+  ******************************************************************************
+  */
+#ifndef __DATA_LOGGING_H__
+#define __DATA_LOGGING_H__
+/* ----------------------------------------------------------------------------
+ *                           Includes
+ * ----------------------------------------------------------------------------
+ */
+/* ----------------------------------------------------------------------------
+ *                           MACROS
+ * ----------------------------------------------------------------------------
+ */
+/*************************1MB*****************/
+#define NVSRAM1MB
+/*************************2MB*****************/
+// #define NVSRAM2MB
+ /* MCP23S17 Registers Definition for BANK=0 (default)*/
+	#define DL_IODIRA 												0x00
+	#define DL_IODIRB 												0x01
+	#define DL_IPOLA 													0x02
+	#define DL_IPOLB													0x03
+  #define DL_GPINTENA 											0x04
+  #define DL_GPINTENB 											0x05
+  #define DL_DEFVALA 												0x06	
+  #define DL_DEFVALB 												0x07	
+  #define DL_INTCONA 												0x08
+  #define DL_INTCONB 												0x09	
+	#define DL_IOCONA 												0x0A
+	#define DL_IOCONB 												0x0B	
+	#define DL_GPPUA  												0x0C
+	#define DL_GPPUB  												0x0D
+	#define DL_INTFA 													0x0E
+	#define DL_INTFB 													0x0F
+	#define DL_INTCAPA 												0x10
+	#define DL_INTCAPB 												0x11
+	#define DL_GPIOA 													0x12
+	#define DL_GPIOB 													0x13
+	#define DL_OLATA													0x14
+	#define DL_OLATB 													0x15	
+	
+/* For IO expander Addressing*/
+  #define DUMMY 														0x00
+	#define SPI_EXP3_WRITE 										0x46  /* address of expander 3 with write command*/
+	#define SPI_EXP3_READ 										0x47  /* address of expander 3 with read command*/
+  #define SPI_EXP4_WRITE 										0x48  /* address of expander 4 with write command*/
+	#define SPI_EXP4_READ 										0x49  /* address of expander 4 with read command*/
+
+/*Masks for the Address bits of NVSRAM*/
+	#define ADD16 														0x00010000
+	#define ADD17 														0x00020000
+	#define ADD18 														0x00040000
+	#define ADD19 														0x00080000
+	#ifdef NVSRAM2MB
+	#define ADDRMASK 													0x001FFFFF
+	#endif
+	
+	#ifdef NVSRAM1MB
+	#define ADDRMASK 													0x000FFFFF
+	#endif
+	
+/* NVSRAM related defines for NVSRAM allocation of DIAGNOSTIC LOG
+ FOLLOWING DEFINES ARE (20 bit) BYTE ADDRESSES *NOT* (19 bit) WORD ADDRESSES*/
+	#define DL_BASE_LENGTH										(0x00000003) /* Length of Base Register for each segment*/
+  
+	#define DL_DIAG_SEG_START 								(0x00000003)
+  #define DL_DIAG_SEG_END										(0x00000400) /*1K*/
+	#define DL_DIAG_WR_BASE_L 								(0x00000000)
+	#define DL_DIAG_WR_BASE_M 								(0x00000001)
+	#define DL_DIAG_WR_BASE_H 								(0x00000002)
+/*	#define DL_DIAG_PACKET_SIZE 							(0x0000000C)*/ /*12 bytes Packet size of one log*/
+	#define DL_DIAG_PACKET_SIZE 							(0x0000000E) /*14 bytes Packet size of one log change23*/
+	#define DL_DIAG_DATABYTE_SIZE 						(0x00000006) /*6 bytes Data byte size of one log*/
+	#define DL_DIAG_WRAP              			  (DL_DIAG_SEG_END -(2*DL_DIAG_PACKET_SIZE)-DL_BASE_LENGTH-1)
+	
+	#define DL_YEAR_LOW_OFFS 									(0x00000000)
+	#define DL_YEAR_HIGH_OFFS 								(DL_YEAR_LOW_OFFS+1)		
+	#define DL_MONTH_OFFS 										(DL_YEAR_HIGH_OFFS+1)
+	#define DL_DAY_OFFS 											(DL_MONTH_OFFS+1)
+	#define DL_HOUR_OFFS 											(DL_DAY_OFFS+1)
+	#define DL_MINUTES_OFFS 								 	(DL_HOUR_OFFS+1)
+	#define DL_SECONDS_OFFS 							    (DL_MINUTES_OFFS+1)
+	
+	#define DIAGBASE_LOW											0x03
+	#define DIAGBASE_MID											0x00
+	#define DIAGBASE_HIGH											0x00	
+	#define DIAG_MASK													0x000003ff
+	
+
+  /* NVSRAM related defines for NVSRAM allocation of STATUS LOG*/
+	
+	#define DL_STA_SEG_START 									(0x00000403)
+  #define DL_STA_SEG_END										(0x00005400) /* 20K NVSRAM1 Locations*/
+	#define DL_STA_WR_BASE_L 									(0x00000400)
+	#define DL_STA_WR_BASE_M 									(0x00000401)
+	#define DL_STA_WR_BASE_H 									(0x00000402)
+	/*60 = 29 STATUS + 7TIMESTAMP (RESERVED 24 BYTES CAN BE INCREASED)*/
+	//#define DL_STA_PACKET_SIZE 								(0x0000003C) 
+	/*60 = 29 STATUS + 7TIMESTAMP change23(RESERVED 24 BYTES CAN BE INCREASED)*/
+	#define DL_STA_PACKET_SIZE 								(0x0000003E) 
+	#define DL_STA_WRAP                 			(DL_STA_SEG_END - (2 * DL_STA_PACKET_SIZE) - DL_BASE_LENGTH - 1)
+
+	#define STABASE_LOW												0x03
+	#define STABASE_MID												0x04
+	#define STABASE_HIGH											0x00
+	#define STA_MASK													0x00007FFF
+	
+  /* NVSRAM related defines for NVSRAM allocation of FAULT LOG*/
+	
+	#define DL_FLT_SEG_START 									(0x00005403)
+  #define DL_FLT_SEG_END										(0x00007c00) /* 1K+20K+10K NVSRAM1 Location*/
+	#define DL_FLT_WR_BASE_L 									(0x00005400)
+	#define DL_FLT_WR_BASE_M 									(0x00005401)
+	#define DL_FLT_WR_BASE_H 									(0x00005402)
+//	#define DL_FLT_PACKET_SIZE 								(0x0000000A) /*MAX PACKET 	SIZE 10*/
+	/*change35 refer Datalogging ver1.3*/
+	#define DL_FLT_PACKET_SIZE 								(0x0000000D) /*change23 MAX PACKET 	SIZE 12*/
+	 /*change35 change to 5 refer Datalogging ver1.3*/
+	#define DL_FLT_DATABYTE_SIZE 							(0x00000005) /*MAX DATABYTE SIZE 4 */
+	#define DL_FLT_WRAP                 			(DL_FLT_SEG_END-(2*DL_FLT_PACKET_SIZE)-DL_BASE_LENGTH-1)
+
+
+	#define FLTBASE_LOW												0x03
+	#define FLTBASE_MID												0x54
+	#define FLTBASE_HIGH											0x00
+	#define FLT_MASK													0x00007fff
+		
+  /* NVSRAM related defines for NVSRAM allocation of PERIODIC LOG */
+	
+	#define DL_PRD_SEG_START 									(0x00007C03)
+	
+	#ifdef NVSRAM2MB
+	#define DL_PRD_RAM1_END										(0x000FFFFF) /*LAST ADDRESS OF NVSRAM1*/
+  #define DL_PRD_RAM2_END										(0x001FFFFF) /*LAST ADDRESS OF NVSRAM2*/
+	#endif
+	
+	#ifdef NVSRAM1MB
+	#define DL_PRD_RAM1_END										(0x0007FFFF) /*LAST ADDRESS OF NVSRAM1*/
+  #define DL_PRD_RAM2_END										(0x000FFFFF) /*LAST ADDRESS OF NVSRAM2*/
+	#endif
+
+	#define DL_PRD_WR_BASE_L 									(0x00007C00)
+	#define DL_PRD_WR_BASE_M 									(0x00007C01)
+	#define DL_PRD_WR_BASE_H 									(0x00007C02)
+	/*MAX PACKET SIZE 70=7TIME+52DATA+1Byte(change15 saying idle or spray or stall) (RESERVED 30BYTES CAN BE INCREASED)*/
+	/*#define DL_PRD_PACKET_SIZE 								(0x00000047)change23*/ 
+	#define DL_PRD_PACKET_SIZE 								(0x00000049) 
+	#define DL_PRD_BOUNDARY            				(DL_PRD_RAM1_END-(2*DL_PRD_PACKET_SIZE)-DL_BASE_LENGTH-1)	
+	#define DL_PRD_WRAP                				(DL_PRD_RAM2_END-(2*DL_PRD_PACKET_SIZE)-DL_BASE_LENGTH-1)
+	
+	#ifdef NVSRAM2MB
+	#define PRDADDR_MASK											0x00100000
+	#define BASE_ADDR_NVSRAM2									0x00100000
+	#endif
+
+	#ifdef NVSRAM1MB
+	#define PRDADDR_MASK											0x00080000
+	#define BASE_ADDR_NVSRAM2									0x00080000
+	#endif
+
+#ifdef NVSRAM1MB
+/* Reset BASE to zeroth location of NVSRAM2*/
+	#define PRDBASE_LOW1											0x00
+	#define PRDBASE_MID1											0x00
+	#define PRDBASE_HIGH1											0x08
+#endif
+
+
+#ifdef NVSRAM2MB
+/* Reset BASE to zeroth location of NVSRAM2*/
+	#define PRDBASE_LOW1											0x00
+	#define PRDBASE_MID1											0x00
+	#define PRDBASE_HIGH1											0x10
+#endif	
+
+
+	/*Reset BASE to starting location of NVSRAM1*/
+	#define PRDBASE_LOW2											0x03
+	#define PRDBASE_MID2											0x7C
+	#define PRDBASE_HIGH2											0x00
+	
+	#ifdef 	NVSRAM1MB
+	#define PRD_MASK1													0x0007FFFF  /*MASK for NVSRAM1*/
+	#define PRD_MASK2													0x000FFFFF  /*MASK for NVSRAM2*/
+	#endif
+	
+	
+	#ifdef 	NVSRAM2MB
+	#define PRD_MASK1													0x000FFFFF  /*MASK for NVSRAM1*/
+	#define PRD_MASK2													0x001FFFFF  /*MASK for NVSRAM2*/
+	#endif
+	
+	/*change27*/
+	#define DL_DIAG_SEG_WARN 								(0x00000333)
+	#define DL_STA_SEG_WARN 								(0x00004400)
+	#define DL_FLT_SEG_WARN									(0x00007400)
+	
+	#ifdef 	NVSRAM1MB
+	#define DL_PRD_SEG_WARN 								(0x000CE598)
+	#endif
+	
+	#ifdef 	NVSRAM2MB
+	#define DL_PRD_SEG_WARN 								(0x0017B265)
+	#endif
+	#define WARNTIMEINTERVAL								(uint8_t)01
+	#define MAXWARNSEND											(uint8_t)03
+	
+	
+	#define BYTE_ZERO  												(uint8_t)00
+	#define BYTE_ONE  				                (BYTE_ZERO+1)
+	#define BYTE_TWO  				                (BYTE_ONE+1)
+	#define BYTE_THREE  			                (BYTE_TWO+1)
+	#define BYTE_FOUR  				                (BYTE_THREE+1)	
+	#define BYTE_FIVE  				                (BYTE_FOUR+1)
+	#define BYTE_SIX  				                (BYTE_FIVE+1)
+	#define BYTE_SEVEN 				                (BYTE_SIX+1)
+	#define BYTE_EIGHT 				                (BYTE_SEVEN+1)
+	#define BYTE_NINE  				                (BYTE_EIGHT+1)
+	#define BYTE_TEN					                (BYTE_NINE+1)
+	
+	#define BYTE_ELEVEN				                (BYTE_TEN+1)
+	#define BYTE_TWELVE				                (BYTE_ELEVEN+1)
+	#define BYTE_THIRTEEN			                (BYTE_TWELVE+1)
+	#define BYTE_FOURTEEN			                (BYTE_THIRTEEN+1)
+	#define BYTE_FIFTEEN			                (BYTE_FOURTEEN+1)
+	#define BYTE_SIXTEEN			                (BYTE_FIFTEEN+1)
+	#define BYTE_SEVENTEEN		                (BYTE_SIXTEEN+1)
+	#define BYTE_EIGHTEEN			                (BYTE_SEVENTEEN+1)
+	#define BYTE_NINETEEN			                (BYTE_EIGHTEEN+1)
+	#define BYTE_TWENTY				                (BYTE_NINETEEN+1)
+	
+	#define BYTE_TWENTYONE		                (BYTE_TWENTY+1)
+	#define BYTE_TWENTYTWO		                (BYTE_TWENTYONE+1)
+	#define BYTE_TWENTYTHREE	                (BYTE_TWENTYTWO+1)
+	#define BYTE_TWENTYFOUR		                (BYTE_TWENTYTHREE+1)
+	#define BYTE_TWENTYFIVE		                (BYTE_TWENTYFOUR+1)
+	#define BYTE_TWENTYSIX		                (BYTE_TWENTYFIVE+1)
+	#define BYTE_TWENTYSEVEN	                (BYTE_TWENTYSIX+1)
+	#define BYTE_TWENTYEIGHT	                (BYTE_TWENTYSEVEN+1)
+	#define BYTE_TWENTYNINE		                (BYTE_TWENTYEIGHT+1)
+	#define BYTE_THIRTY				                (BYTE_TWENTYNINE+1)
+	
+	#define BYTE_THIRTYONE		                (BYTE_THIRTY+1)
+	#define BYTE_THIRTYTWO		                (BYTE_THIRTYONE+1)
+	#define BYTE_THIRTYTHREE	                (BYTE_THIRTYTWO+1)
+	#define BYTE_THIRTYFOUR		                (BYTE_THIRTYTHREE+1)
+	#define BYTE_THIRTYFIVE		                (BYTE_THIRTYFOUR+1)
+	#define BYTE_THIRTYSIX		                (BYTE_THIRTYFIVE+1)
+	#define BYTE_THIRTYSEVEN	                (BYTE_THIRTYSIX+1)
+	#define BYTE_THIRTYEIGHT	                (BYTE_THIRTYSEVEN+1)
+	#define BYTE_THIRTYNINE		                (BYTE_THIRTYEIGHT+1)
+	#define BYTE_FOURTY				                (BYTE_THIRTYNINE+1)
+	
+	#define BYTE_FOURTYONE		                (BYTE_FOURTY+1)
+	#define BYTE_FOURTYTWO		                (BYTE_FOURTYONE+1)
+	#define BYTE_FOURTYTHREE	                (BYTE_FOURTYTWO+1)
+	#define BYTE_FOURTYFOUR		                (BYTE_FOURTYTHREE+1)
+	#define BYTE_FOURTYFIVE		                (BYTE_FOURTYFOUR+1)
+	#define BYTE_FOURTYSIX		                (BYTE_FOURTYFIVE+1)
+	#define BYTE_FOURTYSEVEN	                (BYTE_FOURTYSIX+1)
+	#define BYTE_FOURTYEIGHT	                (BYTE_FOURTYSEVEN+1)
+	#define BYTE_FOURTYNINE		                (BYTE_FOURTYEIGHT+1)
+	#define BYTE_FIFTY				                (BYTE_FOURTYNINE+1)
+	
+	#define BYTE_FIFTYONE			                (BYTE_FIFTY+1)
+	#define BYTE_FIFTYTWO			                (BYTE_FIFTYONE+1)
+	#define BYTE_FIFTYTHREE		                (BYTE_FIFTYTWO+1)
+	#define BYTE_FIFTYFOUR		                (BYTE_FIFTYTHREE+1)
+	#define BYTE_FIFTYFIVE		                (BYTE_FIFTYFOUR+1)
+	#define BYTE_FIFTYSIX			                (BYTE_FIFTYFIVE+1)
+	#define BYTE_FIFTYSEVEN		                (BYTE_FIFTYSIX+1)
+	#define BYTE_FIFTYEIGHT		                (BYTE_FIFTYSEVEN+1)
+	#define BYTE_FIFTYNINE		                (BYTE_FIFTYEIGHT+1)
+	#define BYTE_SIXTY				                (BYTE_FIFTYNINE+1)
+
+	#define BYTE_SIXTYONE			                (BYTE_SIXTY+1)
+	#define BYTE_SIXTYTWO			                (BYTE_SIXTYONE+1)
+	#define BYTE_SIXTYTHREE		                (BYTE_SIXTYTWO+1)
+	#define BYTE_SIXTYFOUR		                (BYTE_SIXTYTHREE+1)
+	#define BYTE_SIXTYFIVE		                (BYTE_SIXTYFOUR+1)
+	#define BYTE_SIXTYSIX			                (BYTE_SIXTYFIVE+1)
+	#define BYTE_SIXTYSEVEN		                (BYTE_SIXTYSIX+1)
+	#define BYTE_SIXTYEIGHT		                (BYTE_SIXTYSEVEN+1)
+	#define BYTE_SIXTYNINE		                (BYTE_SIXTYEIGHT+1)
+	#define BYTE_SEVENTY			                (BYTE_SIXTYNINE+1)
+	
+	#define BYTE_SEVENTYONE		                (BYTE_SEVENTY+1)
+	#define BYTE_SEVENTYTWO		                (BYTE_SEVENTYONE+1)
+	#define BYTE_SEVENTYTHREE	                (BYTE_SEVENTYTWO+1)
+	#define BYTE_SEVENTYFOUR	                (BYTE_SEVENTYTHREE+1)
+	#define BYTE_SEVENTYFIVE	                (BYTE_SEVENTYFOUR+1)
+	#define BYTE_SEVENTYSIX		                (BYTE_SEVENTYFIVE+1)
+	#define BYTE_SEVENTYSEVEN	                (BYTE_SEVENTYSIX+1)
+	#define BYTE_SEVENTYEIGHT	                (BYTE_SEVENTYSEVEN+1)
+	#define BYTE_SEVENTYNINE	                (BYTE_SEVENTYEIGHT+1)
+	#define BYTE_EIGHTY				                (BYTE_SEVENTYNINE+1)
+	
+	#define BYTE_EIGHTYONE		                (BYTE_EIGHTY+1)
+	#define BYTE_EIGHTYTWO		                (BYTE_EIGHTYONE+1)
+	#define BYTE_EIGHTYTHREE	                (BYTE_EIGHTYTWO+1)
+	#define BYTE_EIGHTYFOUR		                (BYTE_EIGHTYTHREE+1)
+	#define BYTE_EIGHTYFIVE		                (BYTE_EIGHTYFOUR+1)
+	#define BYTE_EIGHTYSIX		                (BYTE_EIGHTYFIVE+1)
+	#define BYTE_EIGHTYSEVEN	                (BYTE_EIGHTYSIX+1)
+	#define BYTE_EIGHTYEIGHT	                (BYTE_EIGHTYSEVEN+1)
+	#define BYTE_EIGHTYNINE		                (BYTE_EIGHTYEIGHT+1)
+	#define BYTE_NINETY				                (BYTE_EIGHTYNINE+1)
+	
+	#define BYTE_NINETYONE		                (BYTE_NINETY+1)
+	#define BYTE_NINETYTWO		                (BYTE_NINETYONE+1)
+	#define BYTE_NINETYTHREE	                (BYTE_NINETYTWO+1)
+	#define BYTE_NINETYFOUR		                (BYTE_NINETYTHREE+1)
+	#define BYTE_NINETYFIVE		                (BYTE_NINETYFOUR+1)
+	#define BYTE_NINETYSIX		               	(BYTE_NINETYFIVE+1)
+	#define BYTE_NINETYSEVEN	                (BYTE_NINETYSIX+1)
+	#define BYTE_NINETYEIGHT	                (BYTE_NINETYSEVEN+1)
+	#define BYTE_NINETYNINE		                (BYTE_NINETYEIGHT+1)
+	#define BYTE_HUNDRED			                (BYTE_NINETYNINE+1)
+	
+	#define	ADD16_PIN													GPIO_Pin_11
+	#define ADD16_PORT												GPIOI
+	#define	ADD17_PIN													GPIO_Pin_9
+	#define ADD17_PORT												GPIOH
+	#define	ADD18_PIN													GPIO_Pin_3
+	#define ADD18_PORT												GPIOA
+	#define	ADD19_PIN													GPIO_Pin_10
+	#define ADD19_PORT												GPIOI
+	
+	#define	OE_COMMAN_PIN											GPIO_Pin_3
+	#define OE_COMMAN_PORT										GPIOI
+	#define	WE_COMMAN_PIN											GPIO_Pin_6
+	#define WE_COMMAN_PORT										GPIOH
+	
+	#define	NVSRAM1_EN_PIN										GPIO_Pin_6
+	#define NVSRAM1_EN_PORT	   								GPIOG
+	#define	NVSRAM2_EN_PIN										GPIO_Pin_14
+	#define NVSRAM2_EN_PORT	   								GPIOB
+	
+	#define	BLE_PIN														GPIO_Pin_1
+	#define BLE_PORT	   											GPIOI
+	#define	BHE_PIN														GPIO_Pin_6
+	#define BHE_PORT	   											GPIOA
+	
+	#define	IOEXP3_CS_PIN											GPIO_Pin_5
+	#define IOEXP3_CS_PORT										GPIOA
+	#define	IOEXP4_CS_PIN											GPIO_Pin_10
+	#define IOEXP4_CS_PORT										GPIOG
+	
+	#define	EXP3_INTR_A_PIN										GPIO_Pin_13
+	#define EXP3_INTR_A_PORT									GPIOB
+	#define	EXP3_INTR_B_PIN										GPIO_Pin_12
+	#define EXP3_INTR_B_PORT									GPIOB
+	#define	EXP3_RESET_PIN										GPIO_Pin_10
+	#define EXP3_RESET_PORT										GPIOB
+	
+	#define	EXP4_INTR_A_PIN										GPIO_Pin_10
+	#define EXP4_INTR_A_PORT									GPIOH
+	#define	EXP4_INTR_B_PIN										GPIO_Pin_3
+	#define EXP4_INTR_B_PORT									GPIOH
+	#define	EXP4_RESET_PIN										GPIO_Pin_5
+	#define EXP4_RESET_PORT										GPIOI
+	
+	#define DIAGNOSTIC_LOG										1
+	#define PERIODIC_LOG											2
+	#define FAULT_LOG													3
+	#define STATUS_LOG												4
+	#define CONFIG_PARAMETER									5
+	
+/* ----------------------------------------------------------------------------
+ *                           CONSTANTS
+ * ----------------------------------------------------------------------------
+ */
+/* ----------------------------------------------------------------------------
+ *                           GLOBAL VARIABLES
+ * ----------------------------------------------------------------------------
+ */
+/* ----------------------------------------------------------------------------
+ *                           EXTERNAL VARIABLES
+ * ----------------------------------------------------------------------------
+ */
+typedef struct FaultLog_Flags
+{
+	uint8_t bFault_Log_SVF:1;				/* Spray valve fault error*/
+	uint8_t bFault_Log_GPVF:1;			/* Gun Position valve fault error*/
+	uint8_t bFault_Log_ABVF:1;			/* AB valve fault error*/		
+	uint8_t bFault_Log_FVF:1;				/* Flush valve fault error*/
+	uint8_t bFault_Log_MFVF:1;			/* Motor Forward valve fault warning*/
+	uint8_t bFault_Log_MBVF:1;			/* Motor Backward valve fault warning */
+	uint8_t bFault_Log_STVF:1;			/* Stall valve fault error */
+	uint8_t bFault_Log_IBLTF:1;			/* Inline Base temperature low threshold fault warning change35 */
+	uint8_t bFault_Log_IBHTF:1;			/* Inline Base temperature High threshold fault change35 */
+	uint8_t bFault_Log_IHLTF:1;			/* Inline Hard temperature low threshold fault  warning change35*/		
+	uint8_t bFault_Log_IHHTF:1;			/* Inline Hard temperature high threshold fault change35*/	
+	uint8_t bFault_Log_ALTF:1;			/* Antifreeze temperature low threshold fault warning change35 */
+	uint8_t bFault_Log_AHTF:1;			/* Antifreeze temperature high threshold fault change35 */
+	uint8_t bFault_Log_BRLLTHF:1;		/* Base Return Line temperature low threshold fault  warning change35 */
+	uint8_t bFault_Log_BRLHTHF:1;		/* Base Return Line temperature high threshold fault change35 */
+	uint8_t bFault_Log_PG1LTF:1;		/* Pressure Gauge1 Low threshold fault warning change35 */
+	uint8_t bFault_Log_PG1HTF:1;		/* Pressure Gauge1 high threshold fault change35 */
+	uint8_t bFault_Log_PG2LTF:1;		/* Pressure Gauge2 Low threshold fault  warning change35*/
+	uint8_t bFault_Log_PG2HTF:1;		/* Pressure Gauge2 high threshold fault change35*/
+	uint8_t bFault_Log_PG3LTF:1;		/* Pressure Gauge3 Low threshold fault  warning change35*/
+	uint8_t bFault_Log_PG3HTF:1;		/* Pressure Gauge3 high threshold fault change35*/
+	uint8_t bFault_Log_LLBLTF:1;		/* Base Liquid low Level threshold fault warning change35*/
+	uint8_t bFault_Log_LLBHTF:1;		/* Base Liquid high Level threshold fault warning change35*/
+	uint8_t bFault_Log_LLHLTF:1;		/* Hard Liquid low Level threshold fault warning change35*/
+	uint8_t bFault_Log_LLHHTF:1;		/* Hard Liquid high Level threshold fault warning change35*/
+	uint8_t bFault_Log_PTF:1;				/* Non-Contact Pipe temperature out of range fault warning */		
+	uint8_t bFault_Log_IBHF:1;			/* Inline Base Heater fault warning */
+	uint8_t bFault_Log_IHHF:1;			/* Inline Hard Heater fault warning */
+	uint8_t bFault_Log_AHF:1;				/* Antifreeze Heater fault warning*/
+	uint8_t bFault_Log_HHF:1;				/* Hardener Heater fault warning*/
+	uint8_t bFault_Log_SGMF:1;			/* Spray Gun Motion fault warning */
+	uint8_t bFault_Log_LTF:1;				/* Linear Transducer fault error */
+	uint8_t bFault_Log_DCLSTF:1;		/* DCLS time fault error */
+	uint8_t bFault_Log_HLSTF:1;			/* HLS time fault error */
+	uint8_t bFault_Log_HMIHAF:1;		/* HMI heartbeat ack fault error*/
+	uint8_t bFault_Log_OPMMHAF:1;		/* OPMM heartbeat ack fault  error*/
+	uint8_t bFault_Log_VCMHAF:1;		/* VCM heartbeat ack fault error*/
+	uint8_t bFault_Log_HCMHAF:1;		/* HCM heartbeat ack fault error */
+}FL_LOG_TypeDef;
+
+
+typedef union
+{
+	FL_LOG_TypeDef stFault_Log_Flag;
+	uint8_t 	rgucFaultLogFlag[DL_FLT_DATABYTE_SIZE];
+	
+}TypeDef_Faultlog;
+
+extern TypeDef_Faultlog Fault_Log; 
+extern DATALOG_t stDatalog;
+/****************************Diagnostic LOG***********************************/ 
+typedef struct Diagnostic_Flags
+{
+/******************SCU Peripharals Diagnostic Flags********/
+	uint8_t bDiag_Log_SCU:1;		/* SCU diagnostic status */
+	uint8_t bDiag_Log_EEPROM:1;	/* EPPROM diagnostic  status */
+	uint8_t bDiag_Log_NVSRAM:1;	/* NVSRAM Diagnostic status */
+	uint8_t bDiag_Log_PR:1;			/* Pressure Regulator status */
+/******************HMI Peripharals Diagnostic Flags********/
+	uint8_t bDiag_Log_HMI:1;		/* HMI diagnostic status */
+	uint8_t bDiag_Log_SRAM:1;		/* NVSRAM diagnostic status */
+	uint8_t bDiag_Log_SW:1;			/* Push to On switch diagnostic status */
+/******************OPMM Peripharals Diagnostic Flags********/
+	uint8_t bDiag_Log_OPMM:1;		/* OPMM diagnostic status */
+	uint8_t bDiag_Log_MFVC:1;		/* Motor Forward valve connected */
+	uint8_t bDiag_Log_MBVC:1;		/* Motor Backward valve connected */		
+	uint8_t bDiag_Log_SFVC:1;		/* Solvent Flush valve connected */
+	uint8_t bDiag_Log_SGVC:1;		/* Spray Gun valve connected Spray Valve*/
+	uint8_t bDiag_Log_SHVC:1;		/* Spray Head valve connected Gun Position */
+	uint8_t bDiag_Log_ABVC:1;		/* AB valve connected */
+	uint8_t bDiag_Log_MFV:1;		/* Motor Forward valve status */
+	uint8_t bDiag_Log_MBV:1;		/* Motor Backward valve status */		
+	uint8_t bDiag_Log_SFV:1;		/* Solvent Flush valve status */
+	uint8_t bDiag_Log_SGV:1;		/* Spray Gun valve status  Spray Valve*/
+	uint8_t bDiag_Log_SHV:1;		/* Spray Head valve status  Gun Position*/
+	uint8_t bDiag_Log_ABV:1;		/* AB valve status */
+	uint8_t bDiag_Log_PT12:1;		/* Non-Contact Pipe sensor Diagnostic at 12 */
+	uint8_t bDiag_Log_PT3:1;		/* Non-Contact Pipe sensor Diagnostic at 3 */		
+	uint8_t bDiag_Log_PT6:1;		/* Non-Contact Pipe sensor Diagnostic at 6 */
+	uint8_t bDiag_Log_PT9:1;		/* Non-Contact Pipe sensor Diagnostic at 9 */
+	uint8_t bDiag_Log_OBT:1;		/* OPMM Base Thermocouple Diagnostic */
+	uint8_t bDiag_Log_OHT:1;		/* OPMM Hard Thermocouple Diagnostic */
+/******************VCM Peripharals Diagnostic Flags********/
+	uint8_t bDiag_Log_VCM:1;		/* VCM diagnostic status */
+	uint8_t bDiag_Log_LT:1;			/* Linear Transducer diagnostic  status */
+	uint8_t bDiag_Log_PG1:1;		/* Pressure Gauge1 Diagnostic status */
+	uint8_t bDiag_Log_PG2:1;		/* Pressure Gauge2 Diagnostic status */
+	uint8_t bDiag_Log_PG3:1;		/* Pressure Gauge3 Diagnostic status */
+	uint8_t bDiag_Log_SVC:1;		/* Stall Valve connected */
+	uint8_t bDiag_Log_SV:1;			/* Stall valve status */
+	uint8_t bDiag_Log_ASI:1;		/* Ambient Sensor Inside diagnostic status */
+	uint8_t bDiag_Log_ASO:1;		/* Ambient Sensor Outside diagnostic status */
+/******************HCM Peripharals Diagnostic Flags********/
+	uint8_t bDiag_Log_HCM:1;		/* HCM diagnostic status */
+	uint8_t bDiag_Log_BH:1;			/* Base Heater diagnostic  status */
+	uint8_t bDiag_Log_HH:1;			/* Hardener Heater Diagnostic status */
+	uint8_t bDiag_Log_IBH:1;		/* Inline Base Heater Diagnostic status */
+	uint8_t bDiag_Log_IHH:1;		/* Inline Hardener Heater Diagnostic status */
+	uint8_t bDiag_Log_AT:1;			/* Antifreeze Thermocouple diagnostic status */
+	uint8_t bDiag_Log_IBT:1;		/* Inline Base Thermocouple diagnostic status */
+	uint8_t bDiag_Log_IHT:1;		/* Inline Hardener Thermocouple diagnostic status */
+	uint8_t bDiag_Log_BRT:1;		/* Base Return Line Thermocouple diagnostic status */
+	uint8_t bDiag_Log_BLL:1;		/* Base Liquid Level diagnostic status */
+	uint8_t bDiag_Log_HLL:1;		/* Hardener Liquid Level diagnostic status */
+}DL_LOG_TypeDef;
+
+
+typedef union
+{
+	DL_LOG_TypeDef stDiag_Log_Flag;
+	uint8_t rgucDiagLogFlag[DL_DIAG_DATABYTE_SIZE];
+}TypeDef_Diaglog;
+
+extern TypeDef_Diaglog Diag_Log; 
+ 
+ 
+extern uint32_t uliBaseAddr; /*Local variable for BASE_REGISTER in DIAGNOSTIC*/
+extern uint32_t uliStatusBaseAddr;/*Local variable for BASE_REGISTER in STATUS*/
+extern uint32_t uliFaultBaseAddr;/*Local variable for BASE_REGISTER in FAULT */
+extern uint32_t uliPriodicBaseAddr;/*Local variable for BASE_REGISTER in FAULT*/
+extern uint16_t uiPeriodicDataLogCnt;/*Periodic log TIMEOUT counter*/
+extern uint16_t uiStallcommandsendCnt; /* Stall command send counter change7 */
+
+/*ARRAYS and VARIABLES FOR DATA_LOGGING*/
+extern uint8_t ucStatusByte; /* STATUS Log Byte contains bitwise logs*/
+extern uint8_t rgucStatusLog[DL_STA_PACKET_SIZE]; /* Array For DATA LOGGING of STATUS LOG */
+extern uint8_t rgucPeriodicLog[DL_PRD_PACKET_SIZE]; /* change15 Array For DATA LOGGING of PERIODIC LOG */
+/*********************************************************************************/
+ extern DATALOG_TX_t stWifiLog;
+ /* ----------------------------------------------------------------------------
+ *                           EXTERNAL FUNCTIONS
+ * ----------------------------------------------------------------------------
+ */
+
+ /* Init and Test Functions*/
+ extern void fnDataLogging_Init(void);
+ /*Expander Data Write and Read*/
+ extern void fnExp3Data_Write (uint8_t ucAddress, uint8_t rgucData);
+ extern void fnExp4Data_Write (uint8_t ucAddress, uint8_t rgucData);
+ extern uint16_t fnExp3Data_Read (uint8_t ucAddress);
+ extern uint16_t fnExp4Data_Read (uint8_t ucAddress);
+  
+ /*NVSRAM1*/
+ extern void fnNVSRAM1Word_Write(uint32_t uliAddr, uint16_t uiData); 
+ extern void fnNVSRAM1Byte_Write(uint32_t uliAddr, uint8_t rgucData);  
+ extern uint16_t fnNVSRAM1Word_Read(uint32_t uliAddr);
+ extern uint8_t fnNVSRAM1Byte_Read(uint32_t uliAddr);
+
+ /*NVSRAM2*/
+ extern void fnNVSRAM2Word_Write(uint32_t uliAddr, uint16_t);
+ extern void fnNVSRAM2Byte_Write(uint32_t uliAddr, uint8_t rgucData);
+ extern uint16_t fnNVSRAM2Word_Read(uint32_t uliAddr);
+ extern uint8_t fnNVSRAM2Byte_Read(uint32_t uliAddr); 
+ 
+ /*Multiple Read & Write Operation NVSRAM1*/
+ extern void fnNVSRAM1MultiData_Write( uint8_t, uint32_t, uint8_t rgucData_Bytes[]); 
+ 
+ /*Multiple Read & Write Operation NVSRAM1*/
+  extern void fnNVSRAM2MultiData_Write( uint8_t, uint32_t, uint8_t rgucData_Bytes[]);
+
+
+  /*MCU DATA LOGGING FUNCTIONS*/
+  extern void fnDatalog_Diag(uint8_t rgucData_Bytes[DL_DIAG_DATABYTE_SIZE]); 
+	extern void fnStatus_Log(void); /*Update STATUS LOG*/
+	extern void fnFault_Log(void); /*Update FAULT LOG*/
+	extern void fnPeriodic_Log(void);	/*Update PERIODIC LOG*/
+	
+	/*Read the Memory*/
+	extern void fnMemory_Read(uint32_t, uint32_t);
+	
+  /* RESET BASE REGISTER of DATALOG	*/
+	extern void fnDatalogBaseReg_Reset(void); 
+																					
+  extern  void fnReserveArray_Reset (void);	/*Reset the RESERVED BYTE Array*/
+	
+	
+	extern void fnDataLogging(uint8_t *pucString);
+	extern void fnSend_Datalog(void);
+	extern void fnETHSend_PRD_log(void);
+	extern void fnWifiSend_PRD_log(void);
+	extern void	fnETHSend_Diag_log(void);
+	extern void	fnWifiSend_Diag_log(void);
+	extern void	fnETHSend_Status_log(void);
+	extern void	fnWifiSend_Status_log(void);
+	extern void	fnETHSend_Fault_log(void);
+	extern void	fnWifiSend_Fault_log(void);
+	
+	
+	extern void fnWifiDiagnosticLog(DATALOG_TX_t *pstLog);
+	extern void fnDataLoggingWifi(uint8_t *pucString);
+	extern void fnDatalogEndFrame(void);
+/* ----------------------------------------------------------------------------
+ *                           FUNCTIONS DECLARITION
+ * ----------------------------------------------------------------------------
+ */
+
+
+#endif /* __DATA_LOGGING _H__ */

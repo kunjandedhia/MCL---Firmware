@@ -1,0 +1,241 @@
+/******************************************************************************
+  **@file     :    Can.h
+  * 
+  * @brief  	:		 Macros defined for MCL CAN MESSAGE PROTOCOL.
+  ******************************************************************************
+  */
+#ifndef __CAN_Parser_h
+#define __CAN_Parser_h
+
+/* ----------------------------------------------------------------------------
+*                           Includes
+* ----------------------------------------------------------------------------
+*/
+#include "stm32f10x_can.h"
+/* ----------------------------------------------------------------------------
+*                           MACROS
+* ----------------------------------------------------------------------------
+*/
+#define TYPE_MASK															((uint32_t)0x1C000000)
+#define MSG_MASK															((uint32_t)0x00FF0000)
+#define DEST_ADDR_MASK											  ((uint32_t)0x0000FF00)
+#define SOURCE_ADDR_MASK											((uint32_t)0x000000FF)
+#define DEST_SOURCE_ADDR_CLEAR_MASK						((uint32_t)0xFFFF0000)
+#define DEST_ADDR_CLEAR_MASK									((uint32_t)0xFFFF00FF)
+
+/*****source address*****/
+#define SOURCE_HMI														((uint32_t)0x00000001)		/*Operator module source address*/
+#define SOURCE_SCU														((uint32_t)0x00000002)		/*SCU source address*/
+#define SOURCE_OPMM														((uint32_t)0x00000003)		/*OPMM source address*/
+#define SOURCE_HCM														((uint32_t)0x00000004)		/*HCM source address*/
+#define SOURCE_VCM														((uint32_t)0x00000005)		/*VCM source address*/
+#define SOURCE_TABLET													((uint32_t)0x00000006)		/*TABLET source address*/
+
+/*****1st DESTINATION ADDRESS*****/
+#define DEST_HMI															((uint32_t)0x00000100)		/*Operator module destination address*/
+#define DEST_SCU															((uint32_t)0x00000200)		/*SCU destination address*/
+#define DEST_OPMM															((uint32_t)0x00000300)		/*OPMM destination address*/
+#define DEST_HCM															((uint32_t)0x00000400)		/*HCM destination address*/
+#define DEST_VCM															((uint32_t)0x00000500)		/*VCM destinationce address*/
+#define DEST_TABLET														((uint32_t)0x00000600)		/*TABLET destination address*/
+
+#define DEST_ALL															((uint32_t)0x0000FF00)		/*Broadcast message destination mask*/
+
+/*****RESERVED ADDRESS*****/
+#define RESERVED															((uint32_t)0x00000000)		/*ADDRESS FOR RESERVED FIELD*/
+
+/*****MESSAGE TYPE*****/
+#define MSG_TYPE_BROADCAST										((uint32_t)0x00000000)		/*BROADCAST MESSAGE ADDRESS*/
+#define MSG_TYPE_COMMAND											((uint32_t)0x04000000)		/*COMMAND MESSAGE ADDRESS*/
+#define MSG_TYPE_FAULT												((uint32_t)0x08000000)		/*FAULT MESSAGE ADDRESS*/
+#define MSG_TYPE_STATUS												((uint32_t)0x0C000000)		/*STATUS MESSAGE ADDRESS*/
+#define MSG_TYPE_DATA													((uint32_t)0x10000000)		/*DATA MESSAGE ADDRESS*/
+#define MSG_TYPE_CONFIG												((uint32_t)0x14000000)		/*CONFIGURATION MESSAGE ADDRESS*/
+
+/*****MESSAGE ID----FOR BROADCAST COMMAND*****/
+#define BCAST_ESTOP	 													((uint32_t)0x00010000)		/*ESTOP */							
+#define BCAST_HEARTBEAT												((uint32_t)0x00020000)		/*Broadcast message*/
+
+/*****MESSAGE ID----FOR COMMANDS*****/
+#define CMD_SET_SYSTEM_MODE										((uint32_t)0x00010000)		/*SET SYSTEM MODE*/
+#define CMD_PRIME_SELECTOR_START							((uint32_t)0x00020000)		/*Prime Selector and Start*/
+#define CMD_SPRAY_SELECTOR_START							((uint32_t)0x00030000)		/*Spray Selector and Start*/
+#define CMD_FLUSH_SELECTOR_START							((uint32_t)0x00040000)		/*Flush Selector and Start*/
+#define CMD_LINEAR_TRANS_MONITOR							((uint32_t)0x00050000)		/*Linear Transducer Monitoring (VCM) */
+#define CMD_TURN_ON_OFF_HEATER								((uint32_t)0x00060000)		/*Turn ON Heater(HCM)*/
+#define CMD_STALL_VALVE												((uint32_t)0x00070000)		/*Valve (VCM)*/
+#define CMD_OPMM_VALVE												((uint32_t)0x00080000)		/*Valve (OPMM)*/
+#define CMD_CLEAR_ERROR												((uint32_t)0x00090000)		/*Clear ERROR		*/
+#define CMD_CLEAR_WARNING											((uint32_t)0x000A0000)		/*Clear Warning*/
+#define CMD_LASER_BEAM												((uint32_t)0x000B0000)		/*Laser beam ON/OFF(OPMM)*/	
+#define CMD_STALL_TEST												((uint32_t)0x000C0000)		/*Start Stall test*/	
+#define CMD_READ_NON_CONTACT_TEMP							((uint32_t)0x000D0000)		/*Read Non-Contact Temperature Sensor*/
+#define CMD_STOP_SPRAY												((uint32_t)0x000E0000)		/*Stop Spray Process*/
+#define CMD_MOVE_OPMM_TO_HOME							    ((uint32_t)0x000F0000)		/*Command to move the opmm to home position after flush stop or stop spray command*/
+
+/*****MESSAGE ID----FOR REQUEST*****/
+#define REQ_CONF_VCM													((uint32_t)0x00010000)		/*VCM Configuration parameter request*/
+#define REQ_CONF_HCM													((uint32_t)0x00020000)		/*HCM Configuration parameter request*/
+#define REQ_CONF_OPMM													((uint32_t)0x00030000)		/*OPMM Configuration parameter request*/
+#define REQ_CONF_HMI													((uint32_t)0x00040000)		/*HMI Configuration parameter request*/
+#define REQ_CONF_TABLET												((uint32_t)0x00050000)		/*Tablet Configuration parameter request*/
+
+/*****MESSAGE ID----FOR FAULTS*****/
+#define FAULT_OPMM_VALVE											((uint32_t)0x00010000)		/*Valve error (OPMM)*/
+#define FAULT_STALL_VALVE											((uint32_t)0x00020000)		/*Valve error (VCM)*/
+#define FAULT_TEMP_BEYOND_TH									((uint32_t)0x00030000)		/*Valve error (HCM)*/
+#define FAULT_PRESSURE_BEYOND_TH							((uint32_t)0x00040000)		/*Valve error (VCM)*/
+#define FAULT_LQ_LV_BEYOND_TH									((uint32_t)0x00050000)		/*Valve error (HCM)*/
+#define FAULT_PIPE_TEMP_OUT_OF_RANGE					((uint32_t)0x00060000)		/*Pipe temperature is not in range*/
+#define FAULT_HEATER													((uint32_t)0x00070000)		/*Heater fault*/
+#define FAULT_SPRAY_GUN_MOTION								((uint32_t)0x00080000)		/*Spray gun motion fault*/
+#define FAULT_LT_OUT_OF_RANGE					  			((uint32_t)0x00090000)		/*Linear transducer out of range*/
+#define FAULT_OPMM_ROTATION							    	((uint32_t)0x000A0000)		/*OPMM rotation fault*/																		
+#define FAULT_HB_ACK_NOT_RECEIVED							((uint32_t)0x000B0000)		/*HeartBeat Ack not Received*/
+#define FAULT_ERR_WARN_OCCUR									((uint32_t)0x000C0000)		/*Error or Warning Occurs*/
+#define FAULT_HB_NOT_RECEIVED									((uint32_t)0x000D0000)		/*Heartbeat not received*/
+#define FAULT_LSW_SEQ_MISSED									((uint32_t)0x000F0000)		/*Heartbeat not received*/
+
+#define FAULT_DEBUG														((uint32_t)0x00100000)
+/*****MESSAGE ID----FOR STATUS*****/
+#define STATUS_STALL_TEST_RESULT							((uint32_t)0x00010000)		/*Stall test result*/
+#define STATUS_SPRAY_PROCESS									((uint32_t)0x00020000)		/*Spray process status*/
+#define STATUS_PRIME_PROCESS									((uint32_t)0x00030000)		/*Prime process status*/
+#define STATUS_FLUSH_PROCESS									((uint32_t)0x00040000)		/*Flush process status*/
+#define STATUS_SYSTEM_MODE										((uint32_t)0x00050000)		/*System mode status*/
+#define STATUS_PRIME_TIME_ACHIEVED						((uint32_t)0x00060000)		/*Prime/Flush time achieved	*/
+#define STATUS_MATERIAL_PRESSURE							((uint32_t)0x00070000)		/*Material pressure status*/
+#define STATUS_STALL_VALVE										((uint32_t)0x00080000)		/*Stall Valve ON OFF Status*/
+#define STATUS_OPMM_VALVE											((uint32_t)0x00090000)		/*Valve ON OFF status of OPMM*/
+#define STATUS_HCM_HEATER											((uint32_t)0x000A0000)		/*Heater ON OFF status of HCM*/
+#define STATUS_GUN_POSITION						      	((uint32_t)0x000B0000)		/*Gun position status*/
+#define STATUS_VCM_DIAGNOSTIC									((uint32_t)0x000C0000)		/*VCM Diagnostic*/
+#define STATUS_HCM_DIAGNOSTIC									((uint32_t)0x000D0000)		/*HCM Diagnostic*/
+#define STATUS_SCU_DIAGNOSTIC									((uint32_t)0x000E0000)		/*SCU Diagnostic*/
+#define STATUS_OPMM_DIAGNOSTIC								((uint32_t)0x000F0000)		/*OPMM Diagnostic*/
+#define STATUS_HMI_DIAGNOSTIC									((uint32_t)0x00100000)		/*HMI Diagnostic*/
+#define STATUS_AIR_SENSOR_CONN								((uint32_t)0x00110000)		/*Air Pressure Sensor Connected status*/
+
+#define STATUS_LSW_PRESSED										((uint32_t)0x00120000)		/*Limit Switch Pressed status*/
+
+#define STATUS_SOFTWARE_VERSION								((uint32_t)0x00130000)		/*Software version number*/
+/*****MESSAGE ID----FOR DATA*****/
+#define DATA_INLINE_BASE_TEMP									((uint32_t)0x00010000)		/*Inline Base Temperature*/
+#define DATA_INLINE_HARD_TEMP									((uint32_t)0x00020000)		/*Inline Hard Temperature*/
+#define DATA_RETURN_BASE_TEMP									((uint32_t)0x00030000)		/*Base Return Line Temperature*/
+#define DATA_ANTIFREEZ_TEMP										((uint32_t)0x00040000)		/*Antifreez Temperature*/
+#define DATA_BASE_MATERIAL_LVL								((uint32_t)0x00050000)		/*Base Material Liquid Level*/
+#define DATA_HARD_MATERIAL_LVL								((uint32_t)0x00060000)		/*Hardner Material Liquid Level*/
+#define DATA_DEW_POINT                        ((uint32_t)0x00070000)		/*DEW point of out side the container*/
+#define DATA_AMB_TEMP_INSIDE									((uint32_t)0x00080000)		/*Ambient temperature of inside the container*/
+#define DATA_AMB_TEMP_OUTSIDE									((uint32_t)0x00090000)		/*Ambient temperature of out side the container*/
+#define DATA_AMB_HUMIDITY											((uint32_t)0x000A0000)		/*Ambient Humidity of out side the container*/
+#define DATA_MATERIAL_USED										((uint32_t)0x000B0000)		/*Volume of material used*/
+#define DATA_STALL_PRESSURE_CHANGE						((uint32_t)0x000C0000)		/*Stall test pressure change (in %)*/
+#define DATA_PGAUGE1_VALUE										((uint32_t)0x000D0000)		/*Value of pressure gauge 1(VCM)*/
+#define DATA_PGAUGE2_VALUE										((uint32_t)0x000E0000)		/*Value of pressure gauge 2(VCM)*/
+#define DATA_PGAUGE3_VALUE										((uint32_t)0x000F0000)		/*Value of pressure gauge 3(VCM)*/
+#define DATA_LT_READ													((uint32_t)0x00100000)		/*Lenear Transducer reading*/
+#define DATA_OPMM_PIPE_TEMP										((uint32_t)0x00110000)		/*Pipe Temperature (Non - contact)(OPMM)*/
+#define DATA_OPMM_BATTERY_STATUS              ((uint32_t)0x00120000)    /*OPMM battery status in % */
+#define DATA_PROCESS_TIME                     ((uint32_t)0x00130000)    /*Prime/Spray/Flush process time*/
+#define DATA_ROTATIONS_COMPLETED              ((uint32_t)0x00140000)    /*OPMM no of rotations completed*/
+#define DATA_OPMM_BASE_TEMP										((uint32_t)0x00150000)		/*Base Material temperature from OPMM*/
+#define DATA_OPMM_HARD_TEMP										((uint32_t)0x00160000)		/*Hardner Material temperature from OPMM*/
+//#define DATA_OPMM_LINK_FAULT_CNT							((uint32_t)0x00170000)		/*OPMM CAN link fault count*/
+//#define DATA_AIR_FLOW													((uint32_t)0x00180000)		/*Air Flow*/
+//#define DATA_ETH_WIFI_IP_DETAILS							((uint32_t)0x00170000)		/*ETHERNET & WIFI  IP Address & PORT number change20*/
+#define DATA_ACCUMULATED_MATERIAL_USED				((uint32_t)0x00170000)		/*Volume of material used*/
+#define DATA_DCLS_HIT_COUNTER									((uint32_t)0x00180000)		/*DCLS Hit Coounter*/ /*change76*/
+
+/*****MESSAGE ID----FOR CONFIGURATION*****/
+#define CONFIG_SPRAY_PRESSURE									((uint32_t)0x00010000)		/*Spray pressure value*/	
+#define CONFIG_RECIRC_PRESSURE								((uint32_t)0x00020000)		/*Recirculation pressure value*/
+#define CONFIG_JOINT_NUMBER										((uint32_t)0x00030000)		/*Joint number*/
+#define CONFIG_DATA_LOG_PERIOD								((uint32_t)0x00040000)		/*Data Logging Period*/
+#define CONFIG_SYS_DATE_TIME									((uint32_t)0x00050000)		/*System Date abnd time*/
+#define CONFIG_SUPERVISOR_NAME                ((uint32_t)0x00060000)    /*Supervisor name*/
+#define CONFIG_COATING_MATERIAL               ((uint32_t)0x00070000)    /*coating mterial*/
+#define CONFIG_BASE_MAT_BATCH_NO              ((uint32_t)0x00080000)    /*base material batch no*/
+#define CONFIG_HARD_MAT_BATCH_NO	            ((uint32_t)0x00090000)    /*Hardener material batch no*/
+#define CONFIG_TYPE_OF_UNIT							      ((uint32_t)0x000A0000)    /*Type of Unit used to display the parameter*/
+#define CONFIG_PIPE_TEMP_TH										((uint32_t)0x000B0000)		/*Pipe temperature(non-contact) threshold(OPMM)*/
+#define CONFIG_SPRAY_COUNT										((uint32_t)0x000C0000)		/*Spraying count(OPMM)*/
+#define CONFIG_PRIME_TIME											((uint32_t)0x000D0000)		/*Prime time(OPMM)*/
+#define CONFIG_OPMM_GUN_DELAY									((uint32_t)0x000E0000)		/*Gun delay time(OPMM)*/
+#define CONFIG_OPMM_SPRAY_OVERLAP_TIME				((uint32_t)0x000F0000)		/*Spray overlap time(OPMM)*/
+#define CONFIG_OPMM_REVERSE_DELAY							((uint32_t)0x00100000)		/*Reverse delay time(OPMM)*/
+#define CONFIG_OPMM_FLUSH_TIME								((uint32_t)0x00110000)		/*Flush Time(OPMM)*/
+#define CONFIG_DCLS_HOME_TIME	                ((uint32_t)0x00120000)    /*DCLS-HOME reach timer*/
+#define CONFIG_GUN_POSITION_CHANGE_TIME       ((uint32_t)0x00130000)    /*Gun position change time*/
+#define CONFIG_SPRAY_VALVE_OPEN_TIME_VBAT     ((uint32_t)0x00140000)    /*Spray Valve Open time*/
+#define CONFIG_FLUSH_WARNING_TIME	 						((uint32_t)0x00150000)		/*Flush Warning Time*/
+#define CONFIG_VCM_STALL_TH										((uint32_t)0x00160000)		/*Stall threshold in %(VCM)*/
+#define CONFIG_VCM_PGAUGE1_TH									((uint32_t)0x00170000)		/*Pressure Gauge 1 High threshold(VCM)*/																							
+#define CONFIG_VCM_PGAUGE2_TH									((uint32_t)0x00180000)		/*Pressure Gauge 2 High threshold(VCM)*/																					
+#define CONFIG_VCM_PGAUGE3_TH									((uint32_t)0x00190000)		/*Pressure Gauge 3 High threshold(VCM)*/	
+#define CONFIG_CYLINDER_SURFACE_AREA   				((uint32_t)0x001A0000)		/*Surface Area of Cylinder*/
+#define CONFIG_NUMBER_OF_CYLINDER 	          ((uint32_t)0x001B0000)    /*Number of cylinder*/
+#define CONFIG_TIME_BEFORE_STALL              ((uint32_t)0x001C0000)    /*Time before stall*/
+#define CONFIG_TIME_BEFORE_COMPARE_STALL    	((uint32_t)0x001D0000)    /*Time before comparing stall pressure*/
+#define CONFIG_BASE_TEMP_SETTING							((uint32_t)0x001E0000)    /*Base Tank Temperature Setting values*/
+#define CONFIG_INLINE_BASE_TEMP_SETTING				((uint32_t)0x001F0000)    /*Inline Base Temperature Setting values*/
+#define CONFIG_INLINE_HARD_TEMP_SETTING				((uint32_t)0x00200000)    /*Inline Hard Temperature Setting values*/
+#define CONFIG_BASE_LEVEL_SETTING							((uint32_t)0x00210000)    /*Base Tank Level Setting values*/
+#define CONFIG_HARD_LEVEL_SETTING							((uint32_t)0x00220000)    /*Hard Tank Level Setting values*/
+#define CONFIG_TANK_HEIGHT				  					((uint32_t)0x00230000)		/*Liquid tank Height*/	
+#define CONFIG_LL_SAMPLE_RATE 							  ((uint32_t)0x00240000)		/*Liquid LEvel measurement sampling rate */	
+#define CONFIG_PGAUGE_REMAP									  ((uint32_t)0x00250000)		/*Pressure Gauge Remapping */
+#define CONFIG_LT_REMAP									  		((uint32_t)0x00260000)		/*Linear Transducer Remapping */
+#define CONFIG_EE07_REMAP									  	((uint32_t)0x00270000)		/*EE07 Remapping */
+#define CONFIG_STALL_VALVE_REMAP							((uint32_t)0x00280000)		/*STALL VALVE Remapping */
+#define CONFIG_THERMOCOUPLE_REMAP							((uint32_t)0x00290000)		/*Thermocouple Remapping */
+#define CONFIG_SSR_REMAP									  	((uint32_t)0x002A0000)		/*SSR Remapping */
+#define CONFIG_LL_SENSOR_REMAP								((uint32_t)0x002B0000)		/*LL Sensor Remapping */
+#define CONFIG_OPMM_VALVE_REMAP								((uint32_t)0x002C0000)		/*OPMM Valve Remapping */
+#define CONFIG_VCM_PERIPHRAL_BYPASS						((uint32_t)0x002D0000)		/*VCM peripheral bypass */
+#define CONFIG_HCM_PERIPHRAL_BYPASS						((uint32_t)0x002E0000)		/*HCM peripheral bypass */
+#define CONFIG_SCU_PERIPHRAL_BYPASS						((uint32_t)0x002F0000)		/*SCU peripheral bypass */
+#define CONFIG_OPMM_PERIPHRAL_BYPASS					((uint32_t)0x00300000)		/*OPMM peripheral bypass */
+#define CONFIG_NON_CONTACT_TEMP_REMAP					((uint32_t)0x00310000)		/*OPMM NCTS Remapping*/
+#define CONFIG_TEMP_PRES_ACHIEVE_BYPASS				((uint32_t)0x00320000)		/*SCU temp and pressure achieve bypass*/
+#define CONFIG_OPMM_BUZZER_VOLUME							((uint32_t)0x00330000)		/*Volume of Buzzer in OPMM Config*/
+#define CONFIG_SIGNATURE_BYTE									((uint32_t)0x00340000)		/*Signature Byte Config*/
+#define CONFIG_BAT_KNEE_VOLTAGE								((uint32_t)0x00350000)		/*Battery Knee Voltage OPMM Config*/
+#define CONFIG_TIME_TO_START_STALL						((uint32_t)0x00360000)		/*Time to start Stall test after flush Config*/
+#define CONFIG_STOP_MOTOR_ROTATION_TIME				((uint32_t)0x00370000)		/*Stop OPMM motor rotation in the last pass Config*/
+
+/*********Acknowledgement*********/
+#define ACKNOWLEDGEMENT												((uint32_t)0x00E80000)		/*acknowledgement for each message*/
+
+/*********************************
+TH								---Threshold
+TEMP							---Tetmperature
+CURR							---Current
+********************************/
+/* ----------------------------------------------------------------------------
+*                           CONSTANTS
+* ----------------------------------------------------------------------------
+*/
+/* ----------------------------------------------------------------------------
+*                           GLOBAL VARIABLES
+* ----------------------------------------------------------------------------
+*/
+/* ----------------------------------------------------------------------------
+*                           EXTERNAL VARIABLES
+* ----------------------------------------------------------------------------
+*/
+/* ----------------------------------------------------------------------------
+*                           EXTERNAL FUNCTIONS
+* ----------------------------------------------------------------------------
+*/
+/* ----------------------------------------------------------------------------
+*                           FUNCTIONS DECLARATION
+* ----------------------------------------------------------------------------
+*/
+extern void fnCANMsg_Validate(CanRxMsg *pstCANrxmsg);
+#endif
+
+
+
+

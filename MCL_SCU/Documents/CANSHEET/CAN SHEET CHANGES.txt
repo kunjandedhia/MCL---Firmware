@@ -1,0 +1,36 @@
+Added following 3 config message in version 1.2
+ETHERNET & WIFI  IP Address,Subnet Mask,Gateway & PORT number
+
+Wi-Fi SSID
+
+Wi-Fi Password
+
+Added following 1 fault message in version 1.3
+80% memory full warning message for different logs
+
+added Following Config message in version 1.4
+Time zone offset
+
+added data message for material usage values in version 1.5
+Accumulated Material  Usage
+reset of material usage added
+
+added config message for job id in version 1.6
+
+added Command message for apply wifi settings in version 1.7
+
+in in version 1.8
+Added recirculation valve status message
+Added recirculation valve fault  message
+Added recirculation valve Diagnostic status message
+Added NVSRAM1 & NVSRAM2 SCU diagnostic message
+Added recirculation valve port number & bypass config message
+
+in version 1.9
+Added Remote switch pressed message.
+
+in version 2.0
+Added Remote switch command message.
+
+in version 2.1
+Added DCLS,HLS hit counter Data message for debugging return to home.

@@ -1,0 +1,947 @@
+/******************************************************************************
+* @file   Config.h
+* 
+* @brief  This file contains all include files,configuration parameters,
+					flags and extern functions 
+******************************************************************************
+*/    
+/* ----------------------------------------------------------------------------
+ *                           Includes
+ * ----------------------------------------------------------------------------
+ */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include "stm32f10x.h"
+#include "stm32f10x_adc.h"
+#include "stm32f10x_spi.h"
+#include "stm32f10x_rcc.h"
+#include "usart.h"
+#include "stdarg.h"
+#include "can.h"
+#include "CAN_MCP2515.h"
+#include "CAN_MCP2515defines.h"
+#include "stm32f10x_i2c.h"
+#include "ADS1118.h"
+
+/* ----------------------------------------------------------------------------
+ *                           MACROS
+ * ----------------------------------------------------------------------------
+ */
+/*********************************************************************/
+
+#define TEMPERATURE_SENSOR(SENSOR_NUMBER) \
+												( SENSOR_NUMBER == 1 ? fTemperature1 : \
+													SENSOR_NUMBER == 2 ? fTemperature2 : \
+													SENSOR_NUMBER == 3 ? fTemperature3 : fTemperature4 )
+																					
+#define TEMP_READINGS(NUMBER)		\
+												((NUMBER == 0) ? TEMP_SENSOR_NO_1 : 	\
+												 (NUMBER == 1) ? TEMP_SENSOR_NO_2 :	\
+												 (NUMBER == 2) ? TEMP_SENSOR_NO_3 : 	\
+												 (NUMBER == 3) ? TEMP_SENSOR_NO_4 : AVG_TEMP) 
+ 
+//#define LT_SW_DBG
+//#define GENERAL_DBG
+//#define CONFIG_DBG
+//////#define TEST_DBG
+#define UART_DBG
+//#define DIAG_DBG
+//#define TC_READ
+//#define DBG_CAN
+//#ifdef UART_DBG
+	#define DEBUG_PRINTF        UARTprintf
+//#endif
+
+#define SPRAY_DBG
+#define PRIME_DBG
+#define FLUSH_DBG
+#define PROCESS_DBG
+
+//#define NCTS_DBG
+//#define BATTERY_DBG
+//#define ESTOP_MON_DBG
+//#define LED_TEST_DBG
+//#define BUZZER_TEST
+//#define MCP_CAN2_DBG
+//#define VALVE_DBG
+
+//#define SPRAY_FAULT_DEBUG
+
+#define MODULE_CODE												(uint8_t)0x03
+#define CODE_VERSION											1.8f
+/***************** MCP CAN2, SPI MACROS********************************/
+	/*CAN2*/
+	#define MCP_SPI_NUMBER												 		SPI1		
+	#define MCP_SPI_CS												 				GPIO_Pin_4
+	#define MCP_SCK_PIN                   						GPIO_Pin_5
+	#define MCP_MISO_PIN                  						GPIO_Pin_6
+	#define MCP_MOSI_PIN                  						GPIO_Pin_7
+	#define MCP_GPIO_PORT                 						GPIOA
+
+	/************************************************/
+	#define MCP_CAN2_ENABLE													  GPIO_Pin_12
+	#define MCP_CAN2_STROBE												    GPIO_Pin_13
+	#define MCP_CAN2_ERROR													  GPIO_Pin_14
+	#define MCP_CAN2_GPIO_PORT											  GPIOG
+	 
+	#define MCP_RESET_PIN													   	GPIO_Pin_4
+	#define MCP_CAN2_RESET_PORT											  GPIOE
+
+	#define MCP_CAN2_EXTI_GPIO_PIN 										GPIO_Pin_5	
+	#define MCP_CAN2_EXTI_LINE											  EXTI_Line5
+	#define MCP_CAN2_EXTI_IRQN												EXTI9_5_IRQn
+	#define MCP_CAN2_GPIO_PINSOURCE										GPIO_PinSource5
+//	#define MCP_CAN2_IRQHANDLER												EXTI9_5_IRQHandler
+
+	#define MCP_CAN2_EXTI_PORT									    	GPIOE
+	#define MCAP_CAN_RCC_APBPERIPH_GPIO								RCC_APB2Periph_GPIOE
+	#define MCP_CAN2_GPIO_PORTSOURCEGPIO							GPIO_PortSourceGPIOE
+	
+	
+	/*CAN1*/ 
+	#define CAN_TX 																		GPIO_Pin_12	
+	#define CAN_RX																		GPIO_Pin_11
+	#define CAN_PORT																	GPIOA
+	#define RCC_APBPERIPH_GPIO												RCC_APB2Periph_GPIOA
+	 
+	#define CAN1_ENABLE															  GPIO_Pin_9
+	#define CAN1_STROBE														    GPIO_Pin_10
+	#define CAN1_ERROR															  GPIO_Pin_11
+	#define	CAN1_ENABLE_PORT													GPIOG
+	#define	CAN1_STROBE_PORT													GPIOG
+	#define	CAN1_ERROR_PORT														GPIOG
+	
+	/*********GPIO pins for Valves********/
+	#define VALVE1_DRIVE														GPIO_Pin_0
+	#define VALVE2_DRIVE														GPIO_Pin_1
+	#define VALVE3_DRIVE														GPIO_Pin_2
+	#define VALVE4_DRIVE														GPIO_Pin_3
+	#define VALVE5_DRIVE														GPIO_Pin_4
+	#define VALVE6_DRIVE														GPIO_Pin_5
+	#define VALVE7_DRIVE														GPIO_Pin_6
+	#define VALVE8_DRIVE														GPIO_Pin_7
+	
+	#define VALVE1_FEEDBACK													GPIO_Pin_8	
+	#define VALVE2_FEEDBACK													GPIO_Pin_9
+	#define VALVE3_FEEDBACK													GPIO_Pin_10
+	#define VALVE4_FEEDBACK													GPIO_Pin_11
+	#define VALVE5_FEEDBACK													GPIO_Pin_0
+	#define VALVE6_FEEDBACK													GPIO_Pin_1
+	#define VALVE7_FEEDBACK													GPIO_Pin_2
+	#define VALVE8_FEEDBACK													GPIO_Pin_3
+	
+	#define VALVE1_CONN_STAT												GPIO_Pin_8
+	#define VALVE2_CONN_STAT												GPIO_Pin_9
+	#define VALVE3_CONN_STAT												GPIO_Pin_10
+	#define VALVE4_CONN_STAT												GPIO_Pin_11
+	#define VALVE5_CONN_STAT												GPIO_Pin_12
+	#define VALVE6_CONN_STAT												GPIO_Pin_13
+	#define VALVE7_CONN_STAT												GPIO_Pin_14
+	#define VALVE8_CONN_STAT												GPIO_Pin_15
+
+	/*Structure Position for each Valves*/
+	#define SPRAY_GUN											(uint8_t)0
+	#define SPRAY_HEAD										(uint8_t)1
+	#define AB_MAT												(uint8_t)2
+	#define FLUSH_MAT											(uint8_t)3		
+	#define MFORWARD											(uint8_t)4	
+	#define MBACKWARD											(uint8_t)5
+
+
+	/*********GPIO pins Ports for Valves********/
+	#define VALVE_DRIVE_PORT														GPIOC
+	#define VALVE_CONN_STAT_PORT												GPIOD
+
+	#define VALVE_DRIVE_PIN(x)						((1 == x)? VALVE1_DRIVE: \
+																				 (2 == x)? VALVE2_DRIVE: \
+																				 (3 == x)? VALVE3_DRIVE: \
+																				 (4 == x)? VALVE4_DRIVE: \
+																				 (5 == x)? VALVE5_DRIVE: \
+																				 (6 == x)? VALVE6_DRIVE: \
+																				 (7 == x)? VALVE7_DRIVE: \
+																									 VALVE8_DRIVE)
+  #define VALVE_FEEDBACK_PIN(x)					((1 == x)? VALVE1_FEEDBACK: \
+																				 (2 == x)? VALVE2_FEEDBACK: \
+																				 (3 == x)? VALVE3_FEEDBACK: \
+																				 (4 == x)? VALVE4_FEEDBACK: \
+																				 (5 == x)? VALVE5_FEEDBACK: \
+																				 (6 == x)? VALVE6_FEEDBACK: \
+																				 (7 == x)? VALVE7_FEEDBACK: \
+																									 VALVE8_FEEDBACK)
+																									 
+  #define VALVE_CONN_STAT_PIN(x)				((1 == x)? VALVE1_CONN_STAT: \
+																				 (2 == x)? VALVE2_CONN_STAT: \
+																				 (3 == x)? VALVE3_CONN_STAT: \
+																				 (4 == x)? VALVE4_CONN_STAT: \
+																				 (5 == x)? VALVE5_CONN_STAT: \
+																				 (6 == x)? VALVE6_CONN_STAT: \
+																				 (7 == x)? VALVE7_CONN_STAT: \
+																									 VALVE8_CONN_STAT)
+																									 
+ #define VALVE_FEEDBACK_PORT(x)			    (((1 == x) || (2 == x) || (3 == x) || (4 == x))? GPIOC: GPIOD)																				 
+	
+	
+
+
+	#define TOTAL_VALVES				 					6
+
+	/*************GPIO pins for Limit Switches************/	
+	#define	GUN_AWAY_LIMIT														GPIO_Pin_0
+	#define	GUN_AWAY_LSW_LED 													GPIO_Pin_0
+	
+	#define	GUN_TOWARDS_LIMIT													GPIO_Pin_1
+	#define	GUN_TOWARDS_LSW_LED												GPIO_Pin_1
+	
+	#define	DCLS_POSITION_LIMIT 											GPIO_Pin_2
+	#define	DCLS_POSITION_LSW_LED										  GPIO_Pin_2
+	
+	#define	HOME_POSITION_LIMIT												GPIO_Pin_3
+	#define	HOME_POSITION_LSW_LED								  		GPIO_Pin_3
+	
+	
+	#define LIMIT_SW_PORT															GPIOA
+	#define LIMIT_SW_STATUS_LED_PORT									GPIOE
+
+	/******************GPIO Pins for LASER BEAM**************/
+	#define LASER_BEAM_GPIO_PIN 											GPIO_Pin_0
+	#define LASER_BEAM_GPIO_PORT 											GPIOB
+
+	/*********MACROS for Temperature sensors(ADC)************/
+	#define TEMP_SENSOR1															GPIO_Pin_6
+	#define TEMP_SENSOR2															GPIO_Pin_7
+	#define TEMP_SENSOR3															GPIO_Pin_8
+	#define TEMP_SENSOR4															GPIO_Pin_9
+	#define VBAT_STATUS																GPIO_Pin_10
+	#define SUPPLY_24V_STATUS													GPIO_Pin_1
+	
+	#define NCTS_ADC_CH(x)													 ((1 == x)? ADC_Channel_4: \
+																										(2 == x)? ADC_Channel_5: \
+																										(3 == x)? ADC_Channel_6: \
+																															ADC_Channel_7)
+	#define VBAT_STATUS_CH														ADC_Channel_8
+	#define MAIN_SUPPLY_CH														ADC_Channel_9
+	
+	#define TEMP_SENSOR_PORT													GPIOF
+	#define VBAT_SUPPLY_PORT													GPIOF
+	#define MAIN_SUPPLY_24V_PORT								  		GPIOB
+	
+	#define TEMP_ADC_NUMBER														ADC3
+	#define ADC_SUPPLY_NUMBER												  ADC1
+	#define BATTERY_READ_COUNT											 (uint16_t)100 /* Battery read time is 1 sec****/
+
+	#define VBAT_ENABLE_PIN														GPIO_Pin_15		
+	#define VBAT_ENABLE_PORT													GPIOG	
+
+	/*********************** MACROS For IOExpander EXTI**********************/
+	/*Pins for I2C*/
+	#define I2C_SCL																		GPIO_Pin_6					
+	#define I2C_SDA																		GPIO_Pin_7					
+	#define I2C_PORT																	GPIOB
+	#define I2C_SLOCK_SPEED													  (uint32_t)100000	/*100kHz*/
+	
+		#define I2C_IO_EXP											I2C1
+
+		/**************USART*******************/
+#ifdef UART_DBG
+	#define RCC_APB2PERIPH_GPIO												RCC_APB2Periph_GPIOA
+	#define RCC_APBPERIPH_USART												RCC_APB2Periph_USART1
+	#define USART_TX_PIN															GPIO_Pin_9
+	#define USART_RX_PIN															GPIO_Pin_10
+	#define USART_GPIO_PORT														GPIOA
+	#define USART_BAUD_RATE														(uint32_t)115200
+	#define USART																			USART1
+	#define USART_IRQN																USART1_IRQn
+#endif	
+
+
+/*WDT Pins And Ports*/
+#define WDT_ENABLE_PIN															GPIO_Pin_7
+#define WDTI_PIN																		GPIO_Pin_8
+#define	WDT_ENABLE_PORT															GPIOD
+#define WDTI_PORT																		GPIOA
+
+/*ESTOP Monitoring Pin*/
+#define ESTOP_MONITOR_PIN														GPIO_Pin_5
+#define ESTOP_MONITOR_PORT													GPIOG
+
+#define ESTOP_RCC_APBPERIPH_GPIO										RCC_APB2Periph_GPIOG
+#define ESTOP_GPIO_PORTSOURCEGPIO										GPIO_PortSourceGPIOG
+
+#define ESTOP_EXTI_LINE											  			EXTI_Line5
+#define ESTOP_EXTI_IRQN															EXTI9_5_IRQn
+#define ESTOP_GPIO_PINSOURCE												GPIO_PinSource5
+/*********************@OPMM BOARD MACROS OVER*************************/
+
+
+#define DEVICE_OPMM																	(uint8_t)0x03
+
+#define DIAGNOSTICS_FAIL														(uint8_t)0x01
+#define DIAGNOSTICS_PASS														(uint8_t)0x02
+
+
+#define CAN1FAULT															   	 	(uint8_t)0x01
+#define MCPCAN2FAULT																(uint8_t)0x02
+#define CAN_FAULT_COUNT															(uint8_t)4
+
+
+/***************************************************************/
+#define TIME_CONVERT_FACTOR_10MS 										100.0f
+#define TIME_CONVERT_FACTOR_1MS 										1000.0f
+
+#define CAN_FILTERMASKIDHIGH		            		  	(uint16_t)0x0000
+#define CAN_FILTERMASKIDLOW     				 						(uint16_t)0xFF00
+
+#define OPMM_CAN_FILTERIDHIGH												(uint16_t)0x0000
+#define OPMM_CAN_FILTERIDLOW_ALL 										(uint16_t)0xFF00
+#define OPMM_CAN_FILTERIDLOW   											(uint16_t)0x0300
+
+/*** Timer 3 initialize with time delay of 1 mili second for General Purpose Timer**/
+#define TIM3_PRESCALER															(uint16_t)720
+#define	TIM3_PERIOD																	(uint16_t)100
+
+
+
+/*** Timer 2 initialize with time delay of 2 mili second for Limit Switch Scanning**/
+#define TIM2_PRESCALER															(uint16_t)3600
+#define	TIM2_PERIOD																	(uint16_t)40 /*for 2 msec*/ //50 /*for 5 msec*/
+
+
+#define DEFAULT_MODE 																(uint8_t)0x00
+#define OPERATION_MODE				 											(uint8_t)0x01
+
+/********************************************************************************************/
+#define LOW_TEMPERATURE_LEVEL												0.0f   			 /* TEMPERATURE value in C*/
+#define HIGH_TEMPERATURE_LEVEL											250.0f
+#define HIGH_TEMPERATURE_LEVEL_REQ									100.0f
+
+#define LOW_TEMPERATURE_V														0.6f				/* Voltage corresponds to Low TEMPERATURE  value*/
+#define HIGH_TEMPERATURE_V													3.0f				/* Voltage corresponds to High TEMPERATURE value*/
+#define TEMPERATURE_SLOPE 									     		((HIGH_TEMPERATURE_LEVEL - LOW_TEMPERATURE_LEVEL)/(HIGH_TEMPERATURE_V - LOW_TEMPERATURE_V))
+
+#define NUMBER_OF_TEMP_SENSOR												(uint8_t)4
+#define SCU																					(uint8_t)0x01
+//#define OP																					(uint8_t)0x02
+
+#define PRIME_POSITION															(uint8_t)0x01
+#define SPRAY_POSITION															(uint8_t)0x02
+
+#define PROCESS_FAIL															(uint8_t)0x01
+#define PROCESS_PASS															(uint8_t)0x02
+
+#define TEMP_SENSOR_NO_1														(uint8_t)0x01
+#define TEMP_SENSOR_NO_2														(uint8_t)0x02
+#define TEMP_SENSOR_NO_3														(uint8_t)0x04
+#define TEMP_SENSOR_NO_4														(uint8_t)0x08
+#define AVG_TEMP																		(uint8_t)0x10
+		
+#define AUTOMATIC																		(uint8_t)0x01
+#define MANUAL																			(uint8_t)0x02
+
+
+#define PRIME_SELECTOR															(uint8_t)0x01
+#define PRIME_PROCESS_START													(uint8_t)0x02
+#define PRIME_PROCESS_STOP													(uint8_t)0x04
+
+#define SPRAY_SELECTOR															(uint8_t)0x01
+#define AUTO_COAT																		(uint8_t)0x02
+#define SINGLE_COAT																	(uint8_t)0x04
+
+#define FLUSH_SELECTOR															(uint8_t)0x01
+#define FLUSH_PROCESS_START													(uint8_t)0x02
+#define FLUSH_PROCESS_STOP													(uint8_t)0x04
+#define FLUSH_PROCESS_DONE													(uint8_t)0x08
+#define FLUSH_BUTTON_STOP_SPRAY														(uint8_t)0x10
+
+
+#define MANUAL_PRIME_DONE														(uint8_t)0x01
+#define MANUAL_FLUSH_DONE														(uint8_t)0x02
+
+#define	MFORWARD_VALVE															(uint8_t)0x01
+#define	MBACKWARD_VALVE															(uint8_t)0x02
+#define	FLUSH_VALVE																	(uint8_t)0x04
+#define	SPRAY_GUN_VALVE															(uint8_t)0x08
+#define	SPRAY_HEAD_VALVE														(uint8_t)0x10
+#define	BASE_MAT_VALVE															(uint8_t)0x20
+#define	HARD_MAT_VALVE															(uint8_t)0x40
+#define	SPARE_VALVE																	(uint8_t)0x80
+
+#define VALVE_STATUS_ON															(uint8_t)0x01
+
+/*******************************************************************************************/
+#define CONFIG_PARA_CNT															(uint32_t)0x1FFFF
+
+#define CONVR_NUMERATOR															3.3f
+#define CONVR_DENOMINATOR														4096.0f
+
+
+#define CONFIG_PARA_SPRAY_COUNT											(uint32_t)0x0001
+#define CONFIG_PARA_PRIME_TIME											(uint32_t)0x0002	
+#define CONFIG_PARA_GUNDELAY_TIME 									(uint32_t)0x0004
+#define CONFIG_PARA_SPRAY_OVERLAP_TIME							(uint32_t)0x0008
+#define CONFIG_PARA_REVERSE_DELAY_TIME							(uint32_t)0x0010
+#define CONFIG_PARA_FLUSH_TIME											(uint32_t)0x0020
+#define CONFIG_PARA_DCLS_HCLS_TIME									(uint32_t)0x0040
+#define CONFIG_PARA_HCLS_DCLS_TIME									(uint32_t)0x0080
+#define CONFIG_PARA_GUN_POS_SW_TIME									(uint32_t)0x0100
+#define CONFIG_PARA_SPRAY_GUN_OPEN_TIME							(uint32_t)0x0200
+#define CONFIG_PARA_FLUSH_WARNNING_TIME							(uint32_t)0x0400
+#define CONFIG_PARA_VALVE_REMAP											(uint32_t)0x0800
+#define CONFIG_PARA_PERIPHRAL_BYPASS								(uint32_t)0x1000
+#define CONFIG_PARA_NCTS_REMAP											(uint32_t)0x2000
+#define CONFIG_PARA_BUZZER_VOLUME										(uint32_t)0x4000
+#define CONFIG_PARA_KNEE_VOLTAGE										(uint32_t)0x8000
+#define CONFIG_PARA_STOP_MOTOR_ROTATION							(uint32_t)0x10000
+
+
+#define DCLS_TIMER													      	(uint8_t)0x01	
+#define HLS_TIMER																		(uint8_t)0x02	
+#define OPMM_SET_ON_PIPE_STATUS											(uint8_t)0x01
+
+#define PRIME_PROCESS 															(uint8_t)0x01
+#define SPRAY_PROCESS 															(uint8_t)0x02
+#define FLUSH_PROCESS 															(uint8_t)0x04
+
+#define PRIME_TIME_ACHIEVED													(uint8_t)0x01
+#define FLUSH_TIME_ACHIEVED													(uint8_t)0x02
+
+#define PRIME_FLUSH_TIME_ACHIEVED_FAIL							(uint8_t)0x01
+#define PRIME_FLUSH_TIME_ACHIEVED_PASS							(uint8_t)0x02
+
+/****************************************************************************/
+/*Expander 1 ::::  salve 1*/
+#define SPRAY_GUN_RED_LED												  	(uint16_t)0x0001
+#define SPRAY_GUN_BLUE_LED													(uint16_t)0x0002
+#define SPRAY_GUN_GREEN_LED									  			(uint16_t)0x0004
+
+#define SPRAY_HEAD_RED_LED									 			 	(uint16_t)0x0008
+#define SPRAY_HEAD_BLUE_LED								  				(uint16_t)0x0010
+#define SPRAY_HEAD_GREEN_LED												(uint16_t)0x0020
+
+#define AB_MAT_RED_LED												  		(uint16_t)0x0040
+#define AB_MAT_BLUE_LED								  						(uint16_t)0x0080
+#define AB_MAT_GREEN_LED														(uint16_t)0x0100
+
+#define FLUSH_RED_LED											  				(uint16_t)0x0200
+#define FLUSH_BLUE_LED															(uint16_t)0x0400
+#define FLUSH_GREEN_LED															(uint16_t)0x0800
+
+#define MFORWD_RED_LED															(uint16_t)0x1000
+#define MFORWD_BLUE_LED															(uint16_t)0x2000
+#define MFORWD_GREEN_LED														(uint16_t)0x4000
+
+#define CAN1_STATUS_LED															(uint16_t)0x8000
+
+/*Expander 2 :::: slave 2*/
+#define MBACKWD_RED_BIT															(uint16_t)0x0001
+#define MBACKWD_BLUE_BIT														(uint16_t)0x0002
+#define MBACKWD_GREEN_BIT														(uint16_t)0x0004
+	
+#define BOARD_STATUS_RED_LED												(uint16_t)0x0200	
+#define BOARD_STATUS_BLUE_LED												(uint16_t)0x0400
+#define BOARD_STATUS_GREEN_LED											(uint16_t)0x0800
+	
+#define BAT_STATUS_RED_LED													(uint16_t)0x1000
+#define BAT_STATUS_BLUE_LED													(uint16_t)0x2000
+#define BAT_STATUS_GREEN_LED												(uint16_t)0x4000
+
+#define MCP_CAN2_STATUS_LED													(uint16_t)0x8000
+
+#define BUZZER_ON()																	TIM_SetCompare3(TIM1, ucBuzzerVolume)
+#define BUZZER_OFF()																TIM_SetCompare3(TIM1, 0)
+
+#define VALVE_LED_VALUE(x , y)		((SPRAY_GUN == x)?  ((RED == y)? SPRAY_GUN_RED_LED: (BLUE == y)? SPRAY_GUN_BLUE_LED: SPRAY_GUN_GREEN_LED): \
+																	 (SPRAY_HEAD == x)? ((RED == y)? SPRAY_HEAD_RED_LED: (BLUE == y)? SPRAY_HEAD_BLUE_LED: SPRAY_HEAD_GREEN_LED): \
+																	 (AB_MAT == x)?     ((RED == y)? AB_MAT_RED_LED: (BLUE == y)? AB_MAT_BLUE_LED: AB_MAT_GREEN_LED): \
+																	 (FLUSH_MAT == x)?  ((RED == y)? FLUSH_RED_LED: (BLUE == y)? FLUSH_BLUE_LED: FLUSH_GREEN_LED): \
+																	 (MFORWARD == x)?   ((RED == y)? MFORWD_RED_LED: (BLUE == y)? MFORWD_BLUE_LED: MFORWD_GREEN_LED): \
+																						          ((RED == y)? MBACKWD_RED_BIT: (BLUE == y)? MBACKWD_BLUE_BIT: MBACKWD_GREEN_BIT))
+
+#define RED																  	(uint8_t)1
+#define BLUE																	(uint8_t)2
+#define GREEN																	(uint8_t)3
+
+
+#define IOEX_ALL_RED 													(uint16_t)0x1249
+#define IOEX_ALL_BLUE 												(uint16_t)0x2492
+#define IOEX_ALL_GREEN 												(uint16_t)0xC924
+#define IOEX1_ALL_RED 												(uint16_t)0x1249
+#define IOEX2_ALL_RED 												(uint16_t)0x1201
+
+#define I2C_SLAVE_WRITE															(uint8_t)0xFE		
+#define I2C_SLAVE_READ															(uint8_t)0x01
+
+#define IOEXP_1_SLAVE_ADDR													(uint8_t)0x42					
+#define IOEXP_2_SLAVE_ADDR													(uint8_t)0x44							
+
+#define SWITCHING_VBAT_VOLT 												2.0f	
+#define TIME_PERCENT_FACTOR													0.8f				/* 0.8 means 80% of the given timer value*/
+#define LED_ON																			Bit_SET
+#define LED_OFF																			Bit_RESET
+#define ALL_VALVES																	(uint16_t)0x3F
+	
+#define VALVE_READ_TIME														  (uint16_t)50		/*Valve Status read time = 50 * 10ms = 100 ms */
+#define NUMBER_OF_VALVES													  (uint8_t)6
+
+#define MANUAL_PRIME_MAX_TIME												(uint16_t)12000		/* Default Prime time is 2 Minute */
+#define MANUAL_FLUSH_MAX_TIME												(uint16_t)12000   /* Default Flush Time is 2 Minute */
+
+#define HEARTBEAT_TIMEOUT						 								(uint16_t)75			/*Message resend time = 75 * 10ms = 750 miliSecond*/
+#define CAN_MSG_RESEND_TIME													(uint16_t)25			/*Message resend time = 25 * 10ms = 250 miliseconds*/
+#define CAN_MSG_RESEND_ATTEMPT											(uint8_t)2 
+#define TX_CAN_BUF_SIZE															(uint8_t)100 
+#define RX_CAN_BUF_SIZE															(uint8_t)100 
+
+#define VBAT_LOW_PERCENT														10.0f
+#define VBAT_LOW_VOLTAGE														MINIMUM_VOLT//VOLT_AT_10_PER
+#define LASER_BEAM_ON																(uint8_t)0x02
+#define LASER_BEAM_OFF															(uint8_t)0x01
+
+#define LIMIT_SW_BITS																(uint8_t)0x0F
+#define LIMIT_SW_BITS1_2														(uint8_t)0x03
+#define LIMIT_SW_BITS3_4														(uint8_t)0x0C
+#define LIMIT_SW_BIT_1															(uint8_t)0x01
+#define LIMIT_SW_BIT_2															(uint8_t)0x02
+#define LIMIT_SW_BIT_3															(uint8_t)0x04
+#define LIMIT_SW_BIT_4															(uint8_t)0x08
+
+#define LSW_BOUNCING_CNT														(uint8_t)30 /*scanning rate is 4 msec*///60 for 2msec scaning rate 
+#define LSW_DEBOUNCING_CNT													(uint8_t)30
+
+#define STATUS_LED_BLINK_COUNT											(uint8_t)10 /*100 msec Delay*/
+#define POST_LED_BLINK_COUNT												(uint8_t)20 /*200 msec Delay*/
+
+
+#define MINIMUM_VOLT 																2.125f
+#define VOLT_AT_10_PER 															2.625f
+#define VOLT_AT_90_PER 															3.125f
+#define VOLT_AT_99_PER 															3.18125f
+#define PERCENTAGE_1																1.0f																
+#define PERCENTAGE_10																10.0f
+#define PERCENTAGE_11																11.0f
+#define PERCENTAGE_90																90.0f
+#define PERCENTAGE_91																91.0f
+#define PERCENTAGE_99																99.0f
+#define PERCENTAGE_100															100.0f
+
+
+#define SYSTEM_WARNING															(uint8_t)0x01
+#define SYSTEM_ERROR																(uint8_t)0x02
+
+#define INVALID_DATA															  2999.0f
+
+#define WDT_TIME_CHECK															(uint16_t)10
+#define DCLS_PRESSED																(uint8_t)0x03
+#define HLS_PRESSED																	(uint8_t)0x04
+
+#define MANUAL_PROCESS_DONE 												(uint8_t)0x04
+
+#define DATA_READ_TIME												(uint16_t)100		/*Temp Data Send Time = 100 * 10ms = 1 Second*/
+#define TEMP_READ_TIME 												(uint8_t)20			/*Temp Data Read time = 5 * 10ms = 50 mSecond*/
+
+#define MIN_READING_RANGE												(float)-45.0
+#define MAX_READING_RANGE												(float)250.0
+	
+
+#define BASE																	(uint8_t)0
+#define HARDNER																(uint8_t)1
+
+#define THERMOCOUPLE_DIAG_FAIL(x) 			  ((0 == x)? 0x10: 0x20)
+#define NON_CONTACT_TEMP_DIAG_FAIL(x) 		((0 == x)? 0x01: \
+																					 (1 == x)? 0x02: \
+																					 (2 == x)? 0x04: \
+																										 0x08)
+																							 
+#define NBR_OF_NCTS											(uint8_t)4
+#define VALVE_ON													Bit_SET
+#define VALVE_OFF													Bit_RESET
+/**************MACROS for ESTOP Monitoring*******************/
+#define	ESTOP_RELAY_MONIT_PIN							GPIO_Pin_5
+#define	SAFTY_RELAY_MONIT1_PIN						GPIO_Pin_6
+#define	SAFTY_RELAY_MONIT2_PIN						GPIO_Pin_4
+#define	ESTOP_MONIT_PORT									GPIOG
+
+
+#define VBAT_MUL_FACT											0.125f
+
+
+
+
+
+#define SEQUENCE_ERROR										(uint8_t)0x01
+#define SPRAY_GUN_MOTION_ERROR						(uint8_t)0x02
+#define DCLS_HLS_REACH_FAULT							(uint8_t)0x04
+#define NO_LMSW_DETECTED_FAULT						(uint8_t)0x08
+#define ESTOP_PRESSED_FAULT								(uint8_t)0x10
+#define STOP_CMD_FAULT										(uint8_t)0x20
+#define FLUSH_RECEIVED_FAULT							(uint8_t)0x40
+#define SYSTEM_ERROR_OCCUR						    (uint8_t)0x80
+
+
+/* ----------------------------------------------------------------------------
+ *                           CONSTANTS
+ * ----------------------------------------------------------------------------
+ */
+/* ----------------------------------------------------------------------------
+ *                           GLOBAL VARIABLES
+ * ----------------------------------------------------------------------------
+ */
+
+/* ----------------------------------------------------------------------------
+ *                           EXTERNAL VARIABLES
+ * ----------------------------------------------------------------------------
+ */
+typedef struct OperationFlags
+{	
+	uint8_t bValveCMD:1;
+	uint8_t bMCPCAN2ActiveFlag:1;
+	uint8_t bCAN1ActiveFlag:1;
+	uint8_t bCANFaultSCU:1;
+	uint8_t bCANFaultHMI:1;
+	uint8_t bCANFaultFlag:1;
+	uint8_t bACKRxFlag:1;
+	uint8_t bTxFlag:1;
+	
+	uint8_t bEStopFlag:1;
+	uint8_t bEStopReceived:1;
+	uint8_t bHBNotRcvFlag:1;
+	uint8_t bDiagnosticsPassFlag:1;
+	uint8_t bDiagnosticsFlag:1;
+	uint8_t bFirstHrtBtMsgFlag:1;
+	uint8_t bHeartBeatMsgFlag:1;
+	uint8_t bAwayPipePosition:1;
+	
+	uint8_t bTowardPipePosition:1;
+	uint8_t bDCLSPosition:1; /*LMSW-3*/
+	uint8_t bHomePosition:1; /*LMSW-4*/
+  /*this 2 flags added to move the machine to home*/
+  uint8_t bDCLSPosMTH:1;
+	uint8_t bHLSPosMTH:1;
+	uint8_t bVbatSwichFlag:1;
+	uint8_t bVBatPrimeStartFlag:1;
+	uint8_t bVBatSprayStartFlag:1;
+	uint8_t bVBatFlushStarted:1;
+	uint8_t bHLSRotationFault:1;
+	uint8_t bDCLSRotationFault:1;
+	uint8_t bStartSpray:1; 
+	
+	uint8_t bInitPrimeProcess:1;
+	uint8_t bInitSprayProcess:1;
+	uint8_t bInitFlushProcess:1;
+	uint8_t bPrimeFault:1;
+	uint8_t bSprayFault:1;
+	uint8_t bFlushFault:1;
+	uint8_t bGunDelayCountFlag:1;
+	uint8_t bPrimeSelector:1;
+	
+	uint8_t bAutoPrime:1;
+	uint8_t bManualPrimeDone:1;
+	uint8_t bManualPrime:1;
+	uint8_t bPrimeDone:1;
+	uint8_t bFlushSelector:1;
+	uint8_t bManualFlushDone:1;
+	uint8_t bManualFlush:1;
+	uint8_t bAutoFlush:1;
+	
+	uint8_t bFlushDone:1;
+	uint8_t bSpraySelector:1;
+	uint8_t bInitiateSpray:1;
+	uint8_t bGunDelayTimerFlag:1;
+	uint8_t bGunDelayTimeAchieved:1;
+	uint8_t bDCLSFlag:1;
+	uint8_t bHLSFlag:1;
+	uint8_t bBackwardRotationInit:1;
+	
+	uint8_t bForwardRotationInit:1;
+	uint8_t bSprayOverlapTime:1;
+	uint8_t bReverseDelayTime:1;
+	uint8_t bBackHlsTimer:1;
+	uint8_t bOpmmSetOnPipe:1;
+	uint8_t bProcessTimeFlag:1;
+	uint8_t bTimeAchievStatusFlag:1;
+	uint8_t bVbatFlushGunAwayFromPipe:1;
+	
+	uint8_t bBatLowBuzzer:1;
+	uint8_t bDCLSForward:1;
+	uint8_t bDCLSBackward:1;
+	uint8_t bFirstRotationFlag:1;
+	uint8_t bDataInCANRxBuffFlag:1;
+	uint8_t bDataInCANTxBuffFlag:1;
+	
+	uint8_t bLSW1_2PressFlag:1;
+	uint8_t bLSW3_4PressFlag:1;
+	uint8_t bValveReadFlag:1;
+	
+	uint8_t bFirstBootUp:1;
+	uint8_t bCANSwitchFlag:1;
+
+	uint8_t bIgnoreHLSInit:1;
+	
+	uint8_t bNoLimitSwitchPressFlag:1;
+	
+	uint8_t bSystemErrorFlag:1;
+	
+	uint8_t bHLSReachedOnError:1;
+	
+	uint8_t bAutoFlushOnError:1;
+	uint8_t bAutoFlushByTime:1;
+	
+	uint8_t bAutoFlushFlag:1;
+	
+	uint8_t bSprayGoingOn:1;
+	
+	/*This flag will indicate that OPMM Switch to Battary and 
+		after doing flush its ON*/
+	uint8_t bGlobalVbatSW:1;
+	uint8_t bPrimeTimeAchiveTx:1;
+	
+	uint8_t bEXtraSprayCoat:1;
+	
+	uint8_t bOneTimeAutoProcess:1;
+	uint8_t bVBatFlushStartFlag:1;
+	uint8_t bTempFlag:1;
+	uint8_t bTCProcessed:1;
+	uint8_t bCAN2MsgRcvFlag:1;
+	uint8_t bI2CReading:1;
+	
+	uint8_t bLSWPressed:1;
+	uint8_t bLSWSequenceErrorHLS:1;
+	uint8_t bLSWSequenceErrorDCLS:1;
+	uint8_t bStopSprayProcessbutton:1;
+	uint8_t bFlushButtonStopSpray:1;
+	
+	uint8_t bMoveToHomePos:1;
+	
+	uint8_t bSendFlushStatusOnEstop:1;
+	/*adf 3/2/2017 this flag is used for Auto flush after the home button pressed 
+	from the remote and the Mchince moves to home Position*/
+	uint8_t bMtoHomeAutoFlush:1; 
+	
+//	uint8_t bFlushWarnTime:1; /*adf 21/10/2016*/
+	
+}FLAGS_TypeDef;
+
+typedef struct 
+{
+	uint8_t bValvePrevCurrState:1;						/*Valve Previous status Flag*/
+	uint8_t bValveCurrState:1;								/*valve current status Flag*/
+	uint8_t ucPosition;									/*Position of Valve connected on the Board */
+	
+}TypeDef_ValveState;
+
+typedef union
+{
+	float fData;
+	uint16_t uiData;
+	uint8_t rgucData[4];
+	uint32_t uliData;
+}SplitByte_TypeDef;
+
+extern SplitByte_TypeDef SplitByte;
+
+typedef union
+{
+	FLAGS_TypeDef stStatusFlag;
+	uint32_t rguliData[4];
+}FLAGS_TypeDef_Union;
+
+extern FLAGS_TypeDef_Union	StatusFlag;
+extern TypeDef_ValveState	stValve[TOTAL_VALVES];
+
+typedef struct
+{
+	float fTemperature;								/*Temperature sensor reading*/
+	uint8_t ucPosition;								/*Connected Position of the sensor on Board connector*/
+}TypeDef_NC_TS;
+
+extern TypeDef_NC_TS stNCTS[NBR_OF_NCTS];
+extern uint8_t ucNCTSConnected;			/*indication for the Connected Temp sensor*/
+extern uint8_t ucNCTSRead;					/*this will tell which sensor should be read*/
+extern uint8_t ucReadNCTSCmd;				/*NC TS read command Counter to read the non-contact Temp sensor*/
+
+/**************************************/
+
+extern uint8_t ucMode;
+extern uint16_t uiHBTimeCounter;
+
+extern uint16_t uiGunPosSwTime;
+extern uint16_t uiTxCounter;
+
+extern uint8_t ucTxBuffCnt;
+extern uint8_t ucStoreBuffCnt;
+extern uint8_t ucStoreRxCANBuffCnt;
+extern uint8_t ucRxCANProcessCnt;
+extern CanTxMsg rgstTxCANBuff[TX_CAN_BUF_SIZE];
+extern CanRxMsg rgstRxCANBuff[RX_CAN_BUF_SIZE];
+extern CanTxMsg stTxMsg;
+
+extern uint32_t uliConfigParaByte;
+
+extern uint16_t uiValveReadCounter;
+extern uint16_t uiGunPositionCounter;
+extern uint16_t uiGunDelayCounter;
+extern uint8_t ucValveFault;
+extern uint8_t ucPrevValveFault;
+extern uint8_t ucValveFaultHistory;
+
+
+extern uint16_t uiMaxPrimeTime;
+extern uint16_t uiMaxFlushTime;
+extern uint16_t uiMaxGunDelayTime;
+extern uint16_t uiDCLSTime;
+extern uint16_t uiHLSTime;
+extern uint16_t uiStopMotorRotTimer;
+
+
+extern uint16_t uiSprayOverlapTime;
+extern uint16_t uiReverseDelayTime;
+extern uint8_t ucMaxSprayCount;
+
+extern uint16_t uiDCLSCounter;
+extern uint16_t uiHLSCounter;
+extern uint16_t uiSprayOverlapCounter;
+extern uint16_t uiReverseDelayCounter;
+extern uint16_t uiBackHlsCounter;
+
+extern uint16_t uiProcessTimeCount;
+extern uint16_t uiCANCount;
+
+extern uint16_t uiIOExpader1;
+extern uint16_t uiIOExpader2;
+extern uint16_t uiPreIOExpader1;
+extern uint16_t uiPreIOExpader2;
+extern uint16_t uiI2CWriteData;
+extern uint8_t ucI2C1Seq;
+extern uint16_t uiBatteryReadCount;
+extern uint16_t uiGunDelayCnt;
+
+extern uint8_t ucLEDBlinkCount;
+
+
+extern uint16_t uiSprayGunOpenTime;
+extern uint16_t uiFlushWarnTime;
+extern uint16_t uiFlushWarnCnt; /*adf 21/10/2016*/
+
+extern uint8_t ucCurrOnOff;
+extern uint8_t ucPrevOnOff;
+extern uint16_t uiDclsToHomeFirstCnt;
+
+extern uint8_t ucLSW1_2BouncingCnt;
+extern uint8_t ucLSW1_2DeBouncingCnt;
+extern uint8_t ucLSW3_4BouncingCnt;
+extern uint8_t ucLSW3_4DeBouncingCnt;
+extern uint8_t ucLSW1_2ReadBackup;
+extern uint8_t ucLSW3_4ReadBackup;
+
+extern uint8_t ucLSWReadVar;
+
+extern 	uint8_t ucCurrentLimitSwitch;
+extern uint16_t uiNoLimitSwitchCnt;
+extern uint16_t uiAutoFlushCnt;
+
+extern 	uint16_t uiWDTCount;
+
+extern uint16_t uiTempReadCnt; /*Added Phase-2*/
+extern uint16_t uiTimCount; /*Added Phase-2*/
+extern uint8_t ucCReading;
+
+extern uint8_t ucValveFBState;
+extern uint8_t ucValvePrevFBState;
+
+extern uint16_t uiBypass ;
+
+extern uint8_t ucIOExpSlaveAddr;
+
+extern uint8_t ucBuzzerVolume;
+extern uint8_t ucPOSTLEDBlinkCnt;
+
+extern uint8_t ucLSWDetect;
+
+extern float fBatKneeVoltage;
+extern uint8_t ucRotationCntBackup;
+extern uint8_t ucDCLSHitCntToHome;
+extern uint8_t ucHLSHitCntToHome;
+extern uint8_t uc10msCnt;
+extern uint8_t ucSprayFaultStatus;/*Adf 21/10/2016 variable to store reason of spray failure*/
+ /* ----------------------------------------------------------------------------
+ *                           EXTERNAL FUNCTIONS
+ * ----------------------------------------------------------------------------
+ */
+
+extern void fnValve_ONOFF(uint8_t,uint8_t);
+extern void fnDefault_Config(void);
+extern void fnAllFlags_Reset(void);
+
+extern void fnCAN_Config(void);
+extern void fnCANMsg_Init(void);
+extern void fnSelf_Diagnostic(void);
+extern void fnAllWarnnings_Clear(void);
+extern void fnAllFaults_Clear(void);
+extern void fnHearBeat_Check(void);
+extern void fnACK_Check(void);
+extern void fnBuffer_Store(CanTxMsg*);
+extern void fnTxBuff_Shift(void);
+extern void fnEstop_Check(void);
+extern void fnCANMsg_Validate(CanRxMsg*);
+extern void fnCAN_Transmit(CanTxMsg*);
+extern void fnDefault_Mode(void);
+extern void fnOperation_Mode(void); 
+extern void fnDiagnosticStatus_Send(uint8_t ,uint8_t ,uint8_t);
+extern void fnCANMessage_Send(uint32_t ,uint32_t);
+extern void	fnTempStatus_Send(void);
+extern void fnMCPCAN2_Transmit(CanTxMsg*);
+extern void fnFlush_Process(void);
+extern void fnPrime_Process(void);
+extern void fnSpray_Process(void);
+extern void fnMCPEXTICAN_Config(void);
+extern void fnSendACK(CanRxMsg *); 
+
+extern void fnWDT_Check(void);
+extern void fnWDT_Initialize(void);
+/****System Initialization Functions*****/
+extern void fnSystem_Init(void);
+extern void fnTempSensor_Read(void);
+extern void fnAutoFlush(void);
+/**********USART Functions***************/
+#ifdef UART_DBG
+extern void fnUSART_Config(void);
+#endif
+
+/**********TIMER Functions***************/
+extern void fnTIM1_Config(void);
+extern void fnTIM3_Config(void);
+extern void fnTIM2_Config(void);
+
+/***************ADC Functions************/
+extern void fnADC_Config(void);
+extern float fnADC_Read(ADC_TypeDef*, uint8_t ucChannel);
+
+/************I2C ***********************/
+extern void fnI2C_Config(void);
+extern void fnI2C_Write(I2C_TypeDef*, uint8_t );
+extern uint8_t fnI2C_ReadNack(I2C_TypeDef*);
+extern uint8_t fnI2C_ReadAck(I2C_TypeDef*);
+extern void fnI2C_Stop(I2C_TypeDef*);
+extern void fnI2C_Start(I2C_TypeDef*, uint8_t, uint8_t);
+extern void fnIOExpander_Write(uint8_t, uint16_t);
+extern uint16_t fnGPIOExpander_Read(uint8_t);
+
+/*********** battery funtion **********/
+extern void fnBattery_Status(void);
+extern float fnBatteryStatus_Read(float);
+extern void fnCANMsg_Process(CanRxMsg*);
+extern void fnDelay_ms(uint16_t);
+extern void fnLED_Status(void);
+
+extern void fnTemprature_Process(uint8_t);
+extern void fnDataMsg_Tx(float,uint8_t);
+void fnCAN_PreTx(CanTxMsg *);
+void 	fnSPI_Init(void);
+/* ----------------------------------------------------------------------------
+ *                           FUNCTIONS DECLARATION
+ * ----------------------------------------------------------------------------
+ */
+
+
+
